@@ -587,6 +587,18 @@ window.addEventListener("focus",()=>{ if(isConnected()&&!syncing) loadFromServer
 
 /* 起動 */
 try{ const th=localStorage.getItem("shinshohin-theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
+/* ワンクリック接続リンク：URLの #s=... に接続情報が入っていれば自動接続し、鍵をアドレスバーから消す */
+(function hashConnect(){
+  try{
+    const m=location.hash.match(/[#&]s=([^&]+)/);
+    if(m){
+      let b=m[1].replace(/-/g,"+").replace(/_/g,"/"); while(b.length%4) b+="=";
+      const obj=JSON.parse(decodeURIComponent(escape(atob(b))));
+      if(obj&&obj.u&&obj.t){ conn={url:obj.u,token:obj.t}; saveConn(); }
+    }
+  }catch(e){}
+  if(location.hash) history.replaceState(null,"",location.pathname+location.search);
+})();
 render(); refreshPill();
 if(isConnected()) loadFromServer(true); else persist();
 </script>
