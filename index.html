@@ -454,7 +454,10 @@ function openDetail(id){
     const inp=el(type==="ta"?"textarea":"input");
     if(type==="date") inp.type="date"; else if(type!=="ta") inp.type="text";
     inp.value=p[key]||"";
-    inp.addEventListener("change",()=>{ p[key]=inp.value; persist(); if(key==="name"||key==="client"||key==="owner"||key==="launch"){ head.firstChild.textContent=p.name||"（商品名未設定）"; render(); } });
+    // 入力を即時に反映（ヘッダーの商品名も追従）
+    inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.firstChild.textContent=p.name||"（商品名未設定）"; });
+    // 確定時（フォーカスを外したとき）に保存し、一覧カードへ反映
+    inp.addEventListener("change",()=>{ p[key]=inp.value; persist(); render(); });
     f.appendChild(inp); return f;
   };
   info.appendChild(F("商品名","name","text"));
@@ -486,12 +489,14 @@ function openDetail(id){
 
   // foot
   const foot=el("div","drawer-foot");
-  const del=el("button","btn danger","この商品を削除");
-  del.onclick=()=>{ if(del.classList.contains("armed")){ state.products=state.products.filter(x=>x.id!==id); persist(); closeDetail(); render(); toast("削除しました"); } else { del.classList.add("armed"); del.textContent="もう一度押すと削除"; setTimeout(()=>{del.classList.remove("armed");del.textContent="この商品を削除";},2600); } };
+  const trash=`<svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M6 6v14a1 1 0 001 1h10a1 1 0 001-1V6"/><path d="M10 11v6M14 11v6"/></svg>`;
+  const del=el("button","btn danger",trash+"削除");
+  del.onclick=()=>{ if(del.classList.contains("armed")){ state.products=state.products.filter(x=>x.id!==id); persist(); closeDetail(); render(); toast("削除しました"); } else { del.classList.add("armed"); del.innerHTML=trash+"もう一度で削除"; setTimeout(()=>{del.classList.remove("armed");del.innerHTML=trash+"削除";},2600); } };
   const dup=el("button","btn","複製");
   dup.onclick=()=>{ const np=JSON.parse(JSON.stringify(p)); np.id=uid(); np.name=(p.name||"商品")+"（複製）"; np.createdAt=Date.now(); state.products.push(np); persist(); render(); openDetail(np.id); toast("複製しました"); };
-  const cl=el("button","btn primary","閉じる"); cl.onclick=closeDetail;
-  foot.appendChild(del); foot.appendChild(dup); foot.appendChild(cl);
+  const save=el("button","btn primary",`<svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>保存`);
+  save.onclick=()=>{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); persist(); toast("保存しました"); closeDetail(); };
+  foot.appendChild(del); foot.appendChild(dup); foot.appendChild(save);
   d.appendChild(foot);
 
   $("#scrim").classList.add("show"); d.classList.add("show"); d.setAttribute("aria-hidden","false");
