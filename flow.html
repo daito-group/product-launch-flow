@@ -1,0 +1,1216 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>新商品導入フロー｜食品加工工場（OEM・PB受託）</title>
+
+<style>
+  :root {
+    --paper:      #F7F7F4;
+    --surface:    #FFFFFF;
+    --surface-2:  #EEF1EF;
+    --ink:        #171C1B;
+    --ink-2:      #4C5451;
+    --ink-3:      #7C837F;
+    --line:       #DCDFDB;
+    --line-soft:  #E7EAE6;
+    --accent:     #0E5C63;
+    --accent-2:   #157D86;
+    --accent-soft:#DDEBEC;
+    --gate:       #8A5A12;
+    --gate-soft:  #F4EAD6;
+    --shadow:     0 1px 2px rgba(23,28,27,.05), 0 6px 18px -12px rgba(23,28,27,.22);
+
+    --font-display: "Yu Mincho", YuMincho, "Hiragino Mincho ProN", "Noto Serif JP", "MS PMincho", serif;
+    --font-body: "BIZ UDPGothic", "Yu Gothic", YuGothic, "Hiragino Sans", "Noto Sans JP", "Meiryo", sans-serif;
+    --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+
+    --measure: 68ch;
+    --rail: 2.75rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:      #121615;
+      --surface:    #191E1D;
+      --surface-2:  #222927;
+      --ink:        #E9EEEC;
+      --ink-2:      #A9B3B0;
+      --ink-3:      #79837F;
+      --line:       #2F3836;
+      --line-soft:  #262E2C;
+      --accent:     #58B9C2;
+      --accent-2:   #7ED0D7;
+      --accent-soft:#12312F;
+      --gate:       #DCAC52;
+      --gate-soft:  #2E2612;
+      --shadow:     0 1px 2px rgba(0,0,0,.3), 0 6px 18px -12px rgba(0,0,0,.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #121615;
+    --surface:    #191E1D;
+    --surface-2:  #222927;
+    --ink:        #E9EEEC;
+    --ink-2:      #A9B3B0;
+    --ink-3:      #79837F;
+    --line:       #2F3836;
+    --line-soft:  #262E2C;
+    --accent:     #58B9C2;
+    --accent-2:   #7ED0D7;
+    --accent-soft:#12312F;
+    --gate:       #DCAC52;
+    --gate-soft:  #2E2612;
+    --shadow:     0 1px 2px rgba(0,0,0,.3), 0 6px 18px -12px rgba(0,0,0,.6);
+  }
+
+  :root[data-theme="light"] {
+    --paper:      #F7F7F4;
+    --surface:    #FFFFFF;
+    --surface-2:  #EEF1EF;
+    --ink:        #171C1B;
+    --ink-2:      #4C5451;
+    --ink-3:      #7C837F;
+    --line:       #DCDFDB;
+    --line-soft:  #E7EAE6;
+    --accent:     #0E5C63;
+    --accent-2:   #157D86;
+    --accent-soft:#DDEBEC;
+    --gate:       #8A5A12;
+    --gate-soft:  #F4EAD6;
+    --shadow:     0 1px 2px rgba(23,28,27,.05), 0 6px 18px -12px rgba(23,28,27,.22);
+  }
+
+  * { box-sizing: border-box; }
+
+  .page {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(1.25rem, 4vw, 3.5rem) clamp(1rem, 5vw, 2rem) 5rem;
+  }
+
+  .wrap {
+    max-width: 62rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  /* ── ヘッダー ───────────────────────── */
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 1.5rem;
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+  .masthead h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    line-height: 1.25;
+    letter-spacing: .02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lede {
+    margin: 0;
+    max-width: var(--measure);
+    color: var(--ink-2);
+  }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .fact {
+    background: var(--surface);
+    padding: .9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+  }
+  .fact dt {
+    font-size: .68rem;
+    letter-spacing: .1em;
+    color: var(--ink-3);
+    margin: 0;
+  }
+  .fact dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .fact dd small {
+    font-size: .72rem;
+    font-weight: 400;
+    color: var(--ink-3);
+    margin-left: .2em;
+  }
+
+  /* ── 凡例 ───────────────────────── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.5rem;
+    align-items: center;
+    font-size: .8rem;
+    color: var(--ink-2);
+    padding: .75rem 1rem;
+    background: var(--surface-2);
+    border-radius: 2px;
+  }
+  .legend-item { display: flex; align-items: center; gap: .5rem; }
+  .swatch {
+    width: 1.1rem; height: 1.1rem;
+    border-radius: 50%;
+    flex: none;
+    display: grid;
+    place-items: center;
+  }
+  .swatch.origin { background: var(--accent); }
+  .swatch.added  { background: var(--surface); border: 1.5px dashed var(--accent); }
+  .swatch.gate   {
+    background: var(--gate);
+    border-radius: 2px;
+    transform: rotate(45deg);
+    width: .85rem; height: .85rem;
+  }
+
+  /* ── フェーズ ───────────────────────── */
+  .phase { display: flex; flex-direction: column; gap: 1.25rem; }
+  .phase-head {
+    display: flex;
+    align-items: baseline;
+    gap: .9rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: .6rem;
+  }
+  .phase-num {
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    letter-spacing: .14em;
+    color: var(--accent);
+    flex: none;
+  }
+  .phase-head h2 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    margin: 0;
+  }
+  .phase-span {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+
+  .steps { display: flex; flex-direction: column; }
+
+  /* ── 工程 ───────────────────────── */
+  .step {
+    display: grid;
+    grid-template-columns: var(--rail) 1fr;
+    gap: 0 1rem;
+    position: relative;
+    padding-bottom: 1rem;
+  }
+  .step:not(:last-child) .marker::after {
+    content: "";
+    position: absolute;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.5px;
+    height: calc(100% + 1rem);
+    background: var(--line);
+  }
+  .marker {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: .55rem;
+  }
+  .dot {
+    width: 1.6rem; height: 1.6rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--paper);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    z-index: 1;
+    flex: none;
+  }
+  .step.added .dot {
+    background: var(--surface);
+    color: var(--accent);
+    border: 1.5px dashed var(--accent);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 1rem 1.15rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+  }
+  .card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .5rem .75rem;
+  }
+  .card h3 {
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    margin: 0;
+    line-height: 1.5;
+  }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    letter-spacing: .08em;
+    padding: .15rem .45rem;
+    border-radius: 2px;
+    flex: none;
+    white-space: nowrap;
+  }
+  .chip.origin {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .chip.added {
+    background: transparent;
+    color: var(--ink-3);
+    border: 1px dashed var(--line);
+  }
+  .chip.days {
+    margin-left: auto;
+    background: var(--surface-2);
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .purpose { margin: 0; color: var(--ink-2); font-size: .875rem; max-width: var(--measure); }
+
+  .meta {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: .3rem .85rem;
+    margin: 0;
+    padding-top: .6rem;
+    border-top: 1px dashed var(--line-soft);
+    font-size: .82rem;
+  }
+  .meta dt {
+    color: var(--ink-3);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    padding-top: .1rem;
+  }
+  .meta dd { margin: 0; color: var(--ink); }
+  .meta dd em {
+    font-style: normal;
+    color: var(--ink-2);
+  }
+
+  .caution {
+    margin: 0;
+    font-size: .8rem;
+    color: var(--ink-2);
+    background: var(--surface-2);
+    border-left: 2px solid var(--accent);
+    padding: .5rem .75rem;
+    border-radius: 0 2px 2px 0;
+  }
+  .caution b { color: var(--ink); font-weight: 600; }
+
+  /* ── ゲート ───────────────────────── */
+  .step.gate .dot {
+    background: var(--gate);
+    color: var(--paper);
+    border-radius: 2px;
+    width: 1.15rem; height: 1.15rem;
+    transform: rotate(45deg);
+    font-size: 0;
+    margin-top: .2rem;
+  }
+  .gate-card {
+    background: var(--gate-soft);
+    border: 1px solid var(--gate);
+    border-radius: 3px;
+    padding: .85rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    box-shadow: none;
+  }
+  .gate-card h3 {
+    font-family: var(--font-body);
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    margin: 0;
+    color: var(--gate);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .5rem .7rem;
+  }
+  .gate-card h3 span {
+    font-family: var(--font-mono);
+    font-size: .62rem;
+    letter-spacing: .12em;
+    border: 1px solid var(--gate);
+    padding: .1rem .4rem;
+    border-radius: 2px;
+    flex: none;
+  }
+  .gate-body {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    gap: .25rem .85rem;
+    margin: 0;
+    font-size: .82rem;
+  }
+  .gate-body dt { color: var(--ink-3); font-size: .72rem; padding-top: .1rem; }
+  .gate-body dd { margin: 0; color: var(--ink); }
+
+  /* ── 補足セクション ───────────────────────── */
+  .notes { display: flex; flex-direction: column; gap: 1.5rem; }
+  .notes > h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    margin: 0;
+    padding-bottom: .6rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .note-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1rem;
+  }
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    box-shadow: var(--shadow);
+  }
+  .note h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    margin: 0;
+  }
+  .note p { margin: 0; font-size: .84rem; color: var(--ink-2); }
+  .note ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: .84rem;
+    color: var(--ink-2);
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+  }
+  .note li::marker { color: var(--accent); }
+  .note li b { color: var(--ink); font-weight: 600; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 3px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 34rem;
+    font-size: .82rem;
+    background: var(--surface);
+  }
+  caption {
+    text-align: left;
+    font-size: .78rem;
+    color: var(--ink-3);
+    padding: 0 0 .5rem;
+  }
+  th, td {
+    text-align: left;
+    padding: .55rem .8rem;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  thead th {
+    background: var(--surface-2);
+    font-size: .72rem;
+    letter-spacing: .06em;
+    color: var(--ink-2);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tbody th { font-weight: 600; white-space: nowrap; }
+  td.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--ink-2);
+  }
+  tbody tr:last-child th, tbody tr:last-child td { border-bottom: none; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+    font-size: .76rem;
+    color: var(--ink-3);
+    max-width: var(--measure);
+  }
+
+  @media (max-width: 540px) {
+    :root { --rail: 2rem; }
+    .meta, .gate-body { grid-template-columns: 1fr; gap: .1rem; }
+    .meta dt, .gate-body dt { padding-top: .4rem; }
+    .chip.days { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="page">
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Product Development Flow / OEM・PB</p>
+    <h1>新商品導入フロー</h1>
+    <p class="lede">食品加工工場が、得意先へ<b>OEM・PB商品を提案し採用に至るまで</b>の標準工程です。ご提示の8ステップを骨格に、<b>実務で抜けると後戻りが発生する工程</b>（賞味期限の保存試験、食品表示法チェック、実機での歩留まり測定、採用後の工場監査など）を補って構成しています。工程間の判定会議（ゲート）は、そこで止める判断ができる箇所として明示しました。</p>
+    <dl class="facts">
+      <div class="fact"><dt>全工程</dt><dd>24<small>工程</small></dd></div>
+      <div class="fact"><dt>判定ゲート</dt><dd>5<small>回</small></dd></div>
+      <div class="fact"><dt>立案〜提案</dt><dd>4〜6<small>か月</small></dd></div>
+      <div class="fact"><dt>提案〜発売</dt><dd>2〜3<small>か月</small></dd></div>
+    </dl>
+  </header>
+
+  <div class="legend">
+    <span class="legend-item"><span class="swatch origin"></span>ご提示の8ステップ</span>
+    <span class="legend-item"><span class="swatch added"></span>今回補った工程</span>
+    <span class="legend-item"><span class="swatch gate"></span>判定ゲート（可否を決める会議）</span>
+    <span class="legend-item">標準日数は目安。得意先・商品の難易度で変動します。</span>
+  </div>
+
+  <!-- PHASE 0 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 0</span>
+      <h2>引合・情報収集</h2>
+      <span class="phase-span">2〜3週</span>
+    </div>
+    <div class="steps">
+
+      <div class="step added">
+        <div class="marker"><span class="dot">01</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>引合受付・ニーズヒアリング</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">3〜5日</span>
+          </div>
+          <p class="purpose">得意先が何を求めているかを、後工程が判断できる粒度まで確定させます。ここが曖昧なまま開発に入ると、社内試食で「おいしいが、そもそも要件と違う」という手戻りが起きます。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>営業 <em>（開発が同席）</em></dd>
+            <dt>確認事項</dt><dd>想定売価・希望納入単価／販路と棚（量販・CVS・業務用）／想定ロットと年間数量／必要な賞味期限／包装形態／NG原料・アレルゲン方針／初回納品希望時期</dd>
+            <dt>成果物</dt><dd>引合シート（要件定義書）</dd>
+          </dl>
+          <p class="caution"><b>賞味期限の希望は必ずここで押さえる。</b>後半の保存試験の期間を決め、スケジュール全体のボトルネックになります。</p>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">02</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>市場・競合調査</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">1〜2週</span>
+          </div>
+          <p class="purpose">競合品を実際に買って食べ、価格・内容量・原材料表示・包装を分解します。提案時の差別化ポイントと価格の妥当性は、この調査が根拠になります。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>企画 ／ 営業</dd>
+            <dt>成果物</dt><dd>競合比較表（実勢価格・内容量・g単価・原材料・特徴）</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHASE 1 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 1</span>
+      <h2>企画</h2>
+      <span class="phase-span">2週</span>
+    </div>
+    <div class="steps">
+
+      <div class="step">
+        <div class="marker"><span class="dot">03</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>新商品案の立案</h3>
+            <span class="chip origin">原案 ①</span>
+            <span class="chip days">1〜2週</span>
+          </div>
+          <p class="purpose">商品コンセプト、ターゲット、想定売価、原価の目標値を1枚にまとめます。この時点で概算原価と自社ラインで作れるかの当たりを付けておくと、開発の空振りを防げます。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>企画 ／ 開発</dd>
+            <dt>含める内容</dt><dd>コンセプト／ターゲット／想定売価と目標原価率／使用予定ライン／類似品の実績</dd>
+            <dt>成果物</dt><dd>商品企画書</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step gate">
+        <div class="marker"><span class="dot">G1</span></div>
+        <article class="gate-card">
+          <h3>企画会議<span>GATE 1</span></h3>
+          <dl class="gate-body">
+            <dt>判定</dt><dd>開発に着手してよいか</dd>
+            <dt>判定基準</dt><dd>目標原価内に収まる見込みがある／自社設備で製造可能／既存商品と食い合わない／開発工数を割く価値がある</dd>
+            <dt>出席</dt><dd>営業部長・開発・製造・品質保証・購買</dd>
+            <dt>NG時</dt><dd>企画差戻し、または引合辞退の回答</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHASE 2 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 2</span>
+      <h2>開発（ラボスケール）</h2>
+      <span class="phase-span">4〜8週</span>
+    </div>
+    <div class="steps">
+
+      <div class="step added">
+        <div class="marker"><span class="dot">04</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>原料・資材の選定、調達可否の確認</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">1〜2週</span>
+          </div>
+          <p class="purpose">使いたい原料が、必要な量・価格・安定性で継続調達できるかを購買が確認します。試作で採用してから「量産ロットでは入らない」「単価が倍」と判明するのが最も痛い手戻りです。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>購買 ／ 開発</dd>
+            <dt>確認事項</dt><dd>最小ロットと納期／年間の供給安定性／価格変動リスク／代替原料の有無／仕入先の規格書入手可否</dd>
+            <dt>成果物</dt><dd>原料規格書一式、仕入先見積</dd>
+          </dl>
+          <p class="caution"><b>原料規格書は必ず先に取り寄せる。</b>後工程の商品カルテ（アレルゲン・原産地・添加物）は、この規格書がないと1行も書けません。</p>
+        </article>
+      </div>
+
+      <div class="step">
+        <div class="marker"><span class="dot">05</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>商品の開発（レシピ設計・ラボ試作）</h3>
+            <span class="chip origin">原案 ②</span>
+            <span class="chip days">3〜6週</span>
+          </div>
+          <p class="purpose">配合を設計し、小スケールで試作を繰り返します。採用した配合だけでなく、なぜその配合にしたか（不採用案とその理由）を残すと、後の改良や得意先からの修正要望に即応できます。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>開発</dd>
+            <dt>記録</dt><dd>配合表（原料名・配合比・歩留まり）／加熱条件・pH・水分活性／作業手順</dd>
+            <dt>成果物</dt><dd>試作配合表、試作記録、ラボ試作品</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">06</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>アレルゲン・原産地・添加物の一次チェック</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">3〜5日</span>
+          </div>
+          <p class="purpose">品質保証が配合表を法規の目で確認します。特定原材料8品目と準ずる20品目の洗い出し、添加物の使用基準と用途名表示、既存ラインで作る場合のコンタミ（意図しない混入）リスクを整理します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>品質保証</dd>
+            <dt>確認事項</dt><dd>アレルゲン28品目の該当／添加物の使用基準適合／得意先のNG原料に抵触しないか／同一ラインの他商品からのコンタミ</dd>
+            <dt>成果物</dt><dd>アレルゲン一覧、法規チェックシート（一次）</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step">
+        <div class="marker"><span class="dot">07</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>社内試食 ①（ラボ試作品）</h3>
+            <span class="chip origin">原案 ③</span>
+            <span class="chip days">1日</span>
+          </div>
+          <p class="purpose">開発者以外の目で評価します。「おいしい／まずい」の感想戦にしないため、評価シートで項目と点数を固定するのが要点です。競合品を並べたブラインド評価にすると、身内の甘い評価を排除できます。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>開発（主催） ／ 営業・品質保証・製造が参加</dd>
+            <dt>評価軸</dt><dd>外観・香り・味・食感・後味／想定売価に見合うか／競合品との比較／ターゲットに刺さるか</dd>
+            <dt>成果物</dt><dd>官能評価シート、改良指示</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step gate">
+        <div class="marker"><span class="dot">G2</span></div>
+        <article class="gate-card">
+          <h3>試作品評価会議<span>GATE 2</span></h3>
+          <dl class="gate-body">
+            <dt>判定</dt><dd>実機での量産試作に進んでよいか</dd>
+            <dt>判定基準</dt><dd>官能評価が基準点以上／競合品と同等以上／原料が安定調達できる／法規上の問題がない／概算原価が目標内</dd>
+            <dt>NG時</dt><dd>レシピ改良して工程05へ戻る（通常2〜3回転）</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHASE 3 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 3</span>
+      <h2>量産試作</h2>
+      <span class="phase-span">3〜4週</span>
+    </div>
+    <div class="steps">
+
+      <div class="step added">
+        <div class="marker"><span class="dot">08</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>実機ライン適性の事前検討</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">1週</span>
+          </div>
+          <p class="purpose">実機を止めて試作する前に、机上で通るかを検討します。ライン停止は1回あたりのコストが大きく、やり直しが効きません。必要な治具・型・部品の手配もここで先行させます。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>製造技術 ／ 製造</dd>
+            <dt>確認事項</dt><dd>ラボの加熱・冷却条件を実機で再現できるか／充填機・包装機を通るか／必要な治具・型／洗浄と切替の段取り／試作日のライン確保</dd>
+            <dt>成果物</dt><dd>実機試作計画書、製造工程図（案）</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step">
+        <div class="marker"><span class="dot">09</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>大量生産の試作（実機試作）</h3>
+            <span class="chip origin">原案 ④</span>
+            <span class="chip days">1〜2日</span>
+          </div>
+          <p class="purpose">実際の製造ラインで、本番相当のロットを流します。目的は試食品を作ることではなく、<b>見積と商品カルテの根拠になる数値を採ること</b>です。ここで採った歩留まりとタクトが、そのまま原価と生産能力の裏付けになります。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>製造 ／ 開発 ／ 製造技術 ／ 品質保証</dd>
+            <dt>測定項目</dt><dd>歩留まり・ロス率／ライン速度（タクト）と時間あたり生産数／必要人員／切替と洗浄の時間／段取り時間／各工程の品温・時間</dd>
+            <dt>成果物</dt><dd>実機試作報告書、量産品サンプル（後工程の検査用に確保）</dd>
+          </dl>
+          <p class="caution"><b>後工程の検査用サンプルは、この実機試作品から採る。</b>保存試験・微生物検査・栄養分析は、ラボ試作品ではなく実機の量産条件で作った品で行わないと、提出データとして通用しません。</p>
+        </article>
+      </div>
+
+      <div class="step">
+        <div class="marker"><span class="dot">10</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>社内試食 ②（実機試作品）</h3>
+            <span class="chip origin">原案 ⑤</span>
+            <span class="chip days">1日</span>
+          </div>
+          <p class="purpose">ラボ試作品との差を見ます。スケールアップで味・食感が変わるのは日常茶飯事です。工程07と<b>同じ評価シート</b>を使い、点数の落差で劣化を検出します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>開発（主催） ／ 工程07と同じ参加者</dd>
+            <dt>評価軸</dt><dd>工程07の評価軸＋ラボ品との差異／ロット内のばらつき／包装した状態での見え方</dd>
+            <dt>成果物</dt><dd>官能評価シート（②）、ラボ品との比較所見</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step gate">
+        <div class="marker"><span class="dot">G3</span></div>
+        <article class="gate-card">
+          <h3>量産適性判定<span>GATE 3</span></h3>
+          <dl class="gate-body">
+            <dt>判定</dt><dd>この条件で量産できるか（＝提案してよいか）</dd>
+            <dt>判定基準</dt><dd>実機品の官能評価が基準点以上／歩留まりが目標内／必要な生産能力を満たす／実測原価が目標内／品質のばらつきが許容範囲</dd>
+            <dt>NG時</dt><dd>条件見直しで工程09へ、レシピ起因なら工程05まで戻す</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHASE 4 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 4</span>
+      <h2>検証・エビデンス取得</h2>
+      <span class="phase-span">3週〜（賞味期限による）</span>
+    </div>
+    <div class="steps">
+
+      <div class="step added">
+        <div class="marker"><span class="dot">11</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>保存試験・賞味期限の設定</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">賞味期限 × 1.2</span>
+          </div>
+          <p class="purpose">実機試作品を実際の保存条件で置き、経時変化を追って賞味期限を決めます。<b>全工程で最も時間がかかり、スケジュールを決めるのはほぼこの工程です。</b>期限の1.2〜1.5倍の期間まで試験して、そこから安全係数をかけて設定するのが一般的です。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>品質保証 ／ 開発</dd>
+            <dt>測定項目</dt><dd>微生物（一般生菌・大腸菌群・カビ酵母）／理化学（過酸化物価・酸価・水分活性・pH）／官能（風味・変色・離水）</dd>
+            <dt>成果物</dt><dd>保存試験成績書、賞味期限設定根拠書</dd>
+          </dl>
+          <p class="caution"><b>ここが提案の律速。</b>賞味期限6か月の商品なら実測に7か月かかります。実務では、加速試験や類似品の既存データで<b>暫定値</b>を出して工程18の提案を先行させ、本試験の結果で確定させる並行運用が一般的です。暫定である旨は必ず明示します。</p>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">12</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>栄養成分分析</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">2〜3週</span>
+          </div>
+          <p class="purpose">食品表示法で義務付けられた栄養成分表示のための数値を取得します。外部分析機関に依頼するため、依頼から結果まで数週間かかる前提で先に出します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>品質保証</dd>
+            <dt>分析項目</dt><dd>熱量・たんぱく質・脂質・炭水化物・食塩相当量（義務5項目）＋訴求する成分</dd>
+            <dt>成果物</dt><dd>分析成績書（外部機関）</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">13</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>包装資材の決定・表示ラベルの設計</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">2〜3週</span>
+          </div>
+          <p class="purpose">包材を確定し、一括表示を作成します。包材は最小ロットが大きく版代もかかるため、原価と初期費用に直結します。表示は法規違反があると回収に至るため、品質保証の確認を必須にします。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>購買 ／ 品質保証 ／ 開発</dd>
+            <dt>確認事項</dt><dd>包材の最小ロットと版代／賞味期限を担保するバリア性／一括表示（名称・原材料名・添加物・アレルゲン・内容量・期限・保存方法・製造者）／景品表示法・健康増進法上の表現／JANコード</dd>
+            <dt>成果物</dt><dd>包材仕様書、一括表示案、法規チェックシート（最終）</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">14</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>衛生・異物リスク評価（HACCP）</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">1週</span>
+          </div>
+          <p class="purpose">新商品を既存のHACCPプランに組み込みます。危害要因を洗い出してCCP（重要管理点）と管理基準を決め、日常の記録様式まで用意します。得意先の工場監査（工程20）で必ず見られる部分です。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>品質保証 ／ 製造</dd>
+            <dt>確認事項</dt><dd>危害要因分析（生物・化学・物理）／CCPと管理基準の設定／金属検出機・X線の設定値／アレルゲン切替時の洗浄手順／作業標準書への反映</dd>
+            <dt>成果物</dt><dd>HACCPプラン（改訂）、製造工程図（確定）、作業標準書</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHASE 5 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 5</span>
+      <h2>提案準備</h2>
+      <span class="phase-span">2週</span>
+    </div>
+    <div class="steps">
+
+      <div class="step">
+        <div class="marker"><span class="dot">15</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>商品カルテ（商品規格書）の作成</h3>
+            <span class="chip origin">原案 ⑥</span>
+            <span class="chip days">3〜5日</span>
+          </div>
+          <p class="purpose">得意先に提出する商品の仕様書です。工程04・11・12・13・14で取得したデータを転記して完成させます。<b>この工程が単独で遅れることはなく、遅れるとすれば前工程のデータ待ちです。</b>得意先指定のフォーマットがある場合は早めに入手します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>品質保証 ／ 開発</dd>
+            <dt>記載項目</dt><dd>商品名・規格／原材料名（配合順）／添加物／アレルゲン28品目／原料原産地／栄養成分／賞味期限と保存方法／微生物・理化学の規格値／包装仕様・入数・荷姿／製造工程図／製造者情報・JANコード</dd>
+            <dt>成果物</dt><dd>商品カルテ（商品規格書）</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step">
+        <div class="marker"><span class="dot">16</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>原価計算・見積の作成</h3>
+            <span class="chip origin">原案 ⑦</span>
+            <span class="chip days">3〜5日</span>
+          </div>
+          <p class="purpose">工程09で実測した歩留まりとタクトを使って原価を積み上げます。<b>ロット数によって単価が変わるため、段階見積（例：1,000／5,000／10,000ケース）で出すと商談が進めやすくなります。</b>版代・型代などの初期費用は本体価格と分けて明示します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>営業 ／ 経理 ／ 製造技術</dd>
+            <dt>積上項目</dt><dd>原料費（ロス率込み）／包材費／労務費（必要人員×時間）／加工費（ライン占有時間×レート）／歩留まり補正／物流費／一般管理費／利益</dd>
+            <dt>初期費用</dt><dd>包材の版代・型代・治具代（別建てで明示）</dd>
+            <dt>成果物</dt><dd>原価計算書（社内用）、見積書（提出用）</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step gate">
+        <div class="marker"><span class="dot">G4</span></div>
+        <article class="gate-card">
+          <h3>提案価格の社内決裁<span>GATE 4</span></h3>
+          <dl class="gate-body">
+            <dt>判定</dt><dd>この価格で提案してよいか</dd>
+            <dt>判定基準</dt><dd>目標利益率を確保できている／値引き余地の下限を設定済み／初期費用の負担者が決まっている／最低ロットの条件が明確</dd>
+            <dt>出席</dt><dd>営業部長・経理・工場長</dd>
+            <dt>要点</dt><dd>商談での<b>値引き下限をここで決めておく</b>。営業がその場で判断できず持ち帰りになるのを防ぎます。</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHASE 6 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 6</span>
+      <h2>提案・商談</h2>
+      <span class="phase-span">2〜6週</span>
+    </div>
+    <div class="steps">
+
+      <div class="step">
+        <div class="marker"><span class="dot">17</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>提案</h3>
+            <span class="chip origin">原案 ⑧</span>
+            <span class="chip days">1日</span>
+          </div>
+          <p class="purpose">得意先へ提案します。提案書・商品カルテ・見積・サンプルを揃え、工程02の競合調査を根拠に「なぜ売れるか」を語ります。サンプルは<b>実機試作品</b>を持参します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>営業 <em>（開発が同席し技術説明）</em></dd>
+            <dt>持参物</dt><dd>提案書／商品カルテ／見積書（段階見積）／実機試作サンプル／競合比較表</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">18</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>先方試食・修正対応</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">2〜4週</span>
+          </div>
+          <p class="purpose">得意先バイヤーの試食を受け、修正要望に応えます。<b>ここでの往復回数は読めません。</b>要望が配合に及ぶ場合は工程05へ、価格に及ぶ場合はGATE 4で決めた下限と照らして判断します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>営業 ／ 開発</dd>
+            <dt>戻り先</dt><dd>味・食感の修正 → 工程05／量目・包装の変更 → 工程13・16／価格 → GATE 4の下限内で即答</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step gate">
+        <div class="marker"><span class="dot">G5</span></div>
+        <article class="gate-card">
+          <h3>採用可否<span>GATE 5</span></h3>
+          <dl class="gate-body">
+            <dt>判定</dt><dd>得意先による採用の決定</dd>
+            <dt>合格後</dt><dd>正式受注、発売日と初回ロットの確定</dd>
+            <dt>NG時</dt><dd>不採用理由を必ず記録し、次回提案の資産にする。開発した配合は他得意先への横展開を検討</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PHASE 7 -->
+  <section class="phase">
+    <div class="phase-head">
+      <span class="phase-num">PHASE 7</span>
+      <h2>採用後・発売</h2>
+      <span class="phase-span">2〜3か月</span>
+    </div>
+    <div class="steps">
+
+      <div class="step added">
+        <div class="marker"><span class="dot">19</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>得意先の工場監査・取引先登録</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">2〜4週</span>
+          </div>
+          <p class="purpose">新規取引先や量販・CVS向けでは、先方の品質基準に基づく工場監査がほぼ必ず入ります。<b>是正指摘が出ると発売が遅れるため、採用が見えた時点で前倒しで動きます。</b></p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>品質保証 ／ 工場長 ／ 営業</dd>
+            <dt>準備</dt><dd>先方の品質監査チェックリスト入手／HACCPプラン・記録類の整備／現場5Sと動線／是正処置の回答</dd>
+            <dt>成果物</dt><dd>監査報告書、取引基本契約、取引先登録</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">20</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>初回生産計画・原料／資材の発注</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">3〜6週</span>
+          </div>
+          <p class="purpose">発売日から逆算して発注します。<b>包材は版の製作に3〜4週かかるのが普通で、ここが発売日を決めます。</b>原料の最小ロットと包材の最小ロットが揃わず、初回に過剰在庫を抱えがちな点にも注意します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>生産管理 ／ 購買</dd>
+            <dt>確認事項</dt><dd>包材の版下校了と製作リードタイム／原料の最小ロットと納期／ライン枠の確保／初回ロット数と在庫計画</dd>
+            <dt>成果物</dt><dd>生産計画、発注書</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">21</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>初回ロット生産・立会</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">1〜2日</span>
+          </div>
+          <p class="purpose">量産の初回は開発と品質保証が立ち会います。実機試作から日が空いており、作業者も変わるため、標準書どおりに作れるかを現場で確認します。得意先が立ち会うケースもあります。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>製造 ／ 開発 ／ 品質保証</dd>
+            <dt>確認事項</dt><dd>作業標準書どおりに作業できるか／CCPの記録が正しく取れているか／歩留まりが試作時と一致するか／出荷判定基準を満たすか</dd>
+            <dt>成果物</dt><dd>初回生産記録、出荷可否判定</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">22</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>初期流動管理</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">初回〜3ロット</span>
+          </div>
+          <p class="purpose">最初の数ロットは検査頻度を上げ、通常の管理水準に落とすまでを段階的に見ます。新商品の不具合は立ち上がり期に集中するため、この期間を明示的に設けます。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>品質保証 ／ 製造</dd>
+            <dt>成果物</dt><dd>初期流動管理記録、通常管理への移行判定</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">23</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>発売</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">—</span>
+          </div>
+          <p class="purpose">得意先の店頭に並びます。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>営業</dd>
+          </dl>
+        </article>
+      </div>
+
+      <div class="step added">
+        <div class="marker"><span class="dot">24</span></div>
+        <article class="card">
+          <div class="card-head">
+            <h3>発売後フォロー・振り返り</h3>
+            <span class="chip added">補完</span>
+            <span class="chip days">発売3か月後</span>
+          </div>
+          <p class="purpose">売れ行き、クレーム、実際の歩留まりと原価を確認します。<b>見積時の想定原価と実原価の乖離を必ず突き合わせ</b>、次回の見積精度に還元します。この振り返りがないと、同じ読み違いを毎回繰り返します。</p>
+          <dl class="meta">
+            <dt>主担当</dt><dd>営業 ／ 開発 ／ 経理</dd>
+            <dt>確認事項</dt><dd>販売実績とリピート率／クレーム・返品の有無と内容／実原価と見積原価の差／歩留まりの実績／改良・横展開の要否</dd>
+            <dt>成果物</dt><dd>振り返り報告書</dd>
+          </dl>
+        </article>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <section class="notes">
+    <h2>運用のポイント</h2>
+
+    <div class="note-grid">
+      <div class="note">
+        <h3>スケジュールを決めるのは保存試験</h3>
+        <p>提案までの期間は、開発の速さではなく<b>賞味期限の長さ</b>で決まります。</p>
+        <ul>
+          <li>賞味期限が長い商品ほど、実測に時間がかかる</li>
+          <li>実務では<b>加速試験・類似品データで暫定値</b>を出し、提案を先行させる</li>
+          <li>本試験の結果が出た時点で商品カルテを改訂し、確定値に差し替える</li>
+          <li>暫定値である旨は、提出時に必ず明記する</li>
+        </ul>
+      </div>
+
+      <div class="note">
+        <h3>実機試作は「数値を採る」工程</h3>
+        <p>工程09の目的は試食品づくりではありません。<b>後工程すべての根拠データ</b>をここで採ります。</p>
+        <ul>
+          <li><b>歩留まり・タクト</b> → 見積（工程16）の原価根拠</li>
+          <li><b>製造条件・工程</b> → 商品カルテ（工程15）の製造工程図</li>
+          <li><b>量産サンプル</b> → 保存試験・栄養分析・提案時の持参品</li>
+          <li>採り漏らすと、ライン停止を伴う再試作になる</li>
+        </ul>
+      </div>
+
+      <div class="note">
+        <h3>手戻りの多い3つの戻り先</h3>
+        <p>ゲートで止まったとき、どこまで戻るかの目安です。</p>
+        <ul>
+          <li><b>味・食感の問題</b> → 工程05（レシピ設計）／2〜3回転が通常</li>
+          <li><b>ラインを通らない</b> → 工程08（ライン適性）／治具・条件で解決を試みる</li>
+          <li><b>原料が入らない・高い</b> → 工程04（原料選定）／最も痛い。だから先に確認する</li>
+        </ul>
+      </div>
+
+      <div class="note">
+        <h3>並行して進める工程</h3>
+        <p>PHASE 4の4工程は、直列に積むと3か月以上かかります。</p>
+        <ul>
+          <li>工程11（保存試験）を起点に、12・13・14は<b>並行で走らせる</b></li>
+          <li>工程12（栄養分析）は外部委託のため、実機試作の直後に即出す</li>
+          <li>工程13（包材の版）は採用後の発売日を左右するので、採用が見えた時点で先行手配</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <caption>ご提示の8ステップと、本フローの対応</caption>
+        <thead>
+          <tr>
+            <th>原案</th>
+            <th>本フローの工程</th>
+            <th>前後に補った工程</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>① 新商品案の立案</th>
+            <td class="num">03</td>
+            <td>前に 01 ヒアリング・02 市場調査／後に GATE 1 企画会議</td>
+          </tr>
+          <tr>
+            <th>② 商品の開発</th>
+            <td class="num">05</td>
+            <td>前に 04 原料選定・調達確認／後に 06 アレルゲン一次チェック</td>
+          </tr>
+          <tr>
+            <th>③ 社内試食</th>
+            <td class="num">07</td>
+            <td>後に GATE 2 試作品評価会議</td>
+          </tr>
+          <tr>
+            <th>④ 大量生産の試作</th>
+            <td class="num">09</td>
+            <td>前に 08 ライン適性の事前検討</td>
+          </tr>
+          <tr>
+            <th>⑤ 社内試食</th>
+            <td class="num">10</td>
+            <td>後に GATE 3 量産適性判定</td>
+          </tr>
+          <tr>
+            <th>⑥ 商品カルテの作成</th>
+            <td class="num">15</td>
+            <td>前に 11 保存試験・12 栄養分析・13 表示設計・14 HACCP（カルテの記載データを揃える工程）</td>
+          </tr>
+          <tr>
+            <th>⑦ 見積の作成</th>
+            <td class="num">16</td>
+            <td>後に GATE 4 提案価格の社内決裁</td>
+          </tr>
+          <tr>
+            <th>⑧ 提案</th>
+            <td class="num">17</td>
+            <td>後に 18 先方試食・GATE 5 採用可否／19〜24 発売までの工程</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      標準日数は一般的な加工食品を想定した目安です。商品カテゴリー（要冷蔵・要冷凍・常温）、得意先の要求水準、既存ラインの空き状況によって大きく変動します。自社の実績値に置き換えてお使いください。
+    </footer>
+  </section>
+
+</div>
+</div>
+</body>
+</html>

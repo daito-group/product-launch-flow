@@ -166,6 +166,13 @@
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.24s;z-index:90;max-width:90%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* 工程フロー オーバーレイ */
+  .flow-overlay{position:fixed;inset:0;z-index:85;background:var(--paper);display:none;flex-direction:column}
+  .flow-overlay.show{display:flex}
+  .flow-head{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+  .flow-title{font-weight:800;font-size:15px;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .flow-overlay iframe{flex:1;border:0;width:100%;background:#fff}
+
   @media (max-width:820px){ .kpis{grid-template-columns:repeat(3,1fr)} }
   @media (max-width:520px){ .kpis{grid-template-columns:repeat(2,1fr)} .infogrid{grid-template-columns:1fr} .title small{display:none} }
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -184,6 +191,7 @@
       <button class="btn primary" id="btnNew"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>新規商品</button>
       <button class="btn ghost" id="btnExport" title="全データをJSONで保存"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>書き出し</button>
       <button class="btn ghost" id="btnImport" title="JSONを読み込み"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21V9m0 0l-4 4m4-4l4 4M5 3h14"/></svg>読み込み</button>
+      <button class="btn ghost" id="btnFlow" title="工程フロー図を表示"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4a2 2 0 002 2H14"/></svg>工程フロー</button>
       <button class="btn ghost" id="btnSync" title="全員でデータを共有する設定"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0114-5.3L20 8M20 12a8 8 0 01-14 5.3L4 16"/><path d="M20 4v4h-4M4 20v-4h4"/></svg>共有</button>
       <button class="btn ghost" id="btnTheme" title="表示テーマ切替"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
       <input type="file" id="fileInput" accept="application/json" class="hide">
@@ -222,6 +230,15 @@
     <div class="mdiv"></div>
     <button class="btn ghost" id="s_disconnect" style="width:100%;justify-content:center">共有を解除（この端末のみで使う）</button>
   </div>
+</div>
+
+<div class="flow-overlay" id="flowOverlay" aria-hidden="true">
+  <div class="flow-head">
+    <span class="flow-title">新商品導入フロー（工程の全体像・24工程＋5ゲート）</span>
+    <a class="btn ghost" id="flowOpenTab" href="flow.html" target="_blank" rel="noopener" title="別タブで開く"><svg class="icon" viewBox="0 0 24 24"><path d="M14 3h7v7M21 3l-9 9M10 5H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5"/></svg>別タブ</a>
+    <button class="btn primary" id="flowClose"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>閉じる</button>
+  </div>
+  <iframe id="flowFrame" title="工程フロー" src="about:blank" loading="lazy"></iframe>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -554,7 +571,13 @@ $("#q").addEventListener("input",e=>{ filter.q=e.target.value; render(); });
 $("#fPhase").addEventListener("change",e=>{ filter.phase=e.target.value; render(); });
 $("#fSort").addEventListener("change",e=>{ filter.sort=e.target.value; render(); });
 $("#scrim").addEventListener("click",closeDetail);
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeDetail(); closeSync(); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeDetail(); closeSync(); closeFlow(); } });
+
+/* 工程フロー オーバーレイ */
+function openFlow(){ const f=$("#flowFrame"); if(f.getAttribute("src")==="about:blank") f.src="flow.html"; $("#flowOverlay").classList.add("show"); $("#flowOverlay").setAttribute("aria-hidden","false"); }
+function closeFlow(){ $("#flowOverlay").classList.remove("show"); $("#flowOverlay").setAttribute("aria-hidden","true"); }
+$("#btnFlow").addEventListener("click",openFlow);
+$("#flowClose").addEventListener("click",closeFlow);
 
 /* 共有モーダル配線 */
 $("#btnSync").addEventListener("click",openSync);
