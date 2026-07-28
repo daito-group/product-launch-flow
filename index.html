@@ -166,6 +166,16 @@
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.24s;z-index:90;max-width:90%;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* 管理メニュー（書き出し・読み込み・共有） */
+  .menu-wrap{position:relative}
+  .menu{position:absolute;top:calc(100% + 6px);right:0;min-width:210px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lg);padding:6px;display:none;flex-direction:column;gap:2px;z-index:50}
+  .menu.show{display:flex}
+  .menu .mlabel{font-size:10.5px;color:var(--faint);font-weight:700;padding:5px 11px 3px;letter-spacing:.04em}
+  .menu button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;border:0;padding:9px 11px;border-radius:8px;font-weight:600;font-size:13px;color:var(--ink-soft);cursor:pointer}
+  .menu button:hover{background:var(--surface-2);color:var(--ink)}
+  .menu button .icon{color:var(--muted);flex:none}
+  .menu .sep{height:1px;background:var(--line);margin:4px 6px}
+
   /* 工程フロー オーバーレイ */
   .flow-overlay{position:fixed;inset:0;z-index:85;background:var(--paper);display:none;flex-direction:column}
   .flow-overlay.show{display:flex}
@@ -189,11 +199,18 @@
     </div>
     <div class="top-actions">
       <button class="btn primary" id="btnNew"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>新規商品</button>
-      <button class="btn ghost" id="btnExport" title="全データをJSONで保存"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>書き出し</button>
-      <button class="btn ghost" id="btnImport" title="JSONを読み込み"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21V9m0 0l-4 4m4-4l4 4M5 3h14"/></svg>読み込み</button>
       <button class="btn ghost" id="btnFlow" title="工程フロー図を表示"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="5" rx="1"/><rect x="14" y="16" width="7" height="5" rx="1"/><path d="M6.5 8v4a2 2 0 002 2H14"/></svg>工程フロー</button>
-      <button class="btn ghost" id="btnSync" title="全員でデータを共有する設定"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0114-5.3L20 8M20 12a8 8 0 01-14 5.3L4 16"/><path d="M20 4v4h-4M4 20v-4h4"/></svg>共有</button>
       <button class="btn ghost" id="btnTheme" title="表示テーマ切替"><svg class="icon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+      <div class="menu-wrap">
+        <button class="btn ghost" id="btnAdmin" title="データ管理（書き出し・読み込み・共有）" aria-haspopup="true" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>管理</button>
+        <div class="menu" id="adminMenu" role="menu">
+          <div class="mlabel">データ管理（管理者用）</div>
+          <button id="btnExport" role="menuitem"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>書き出し（バックアップ）</button>
+          <button id="btnImport" role="menuitem"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21V9m0 0l-4 4m4-4l4 4M5 3h14"/></svg>読み込み</button>
+          <div class="sep"></div>
+          <button id="btnSync" role="menuitem"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0114-5.3L20 8M20 12a8 8 0 01-14 5.3L4 16"/><path d="M20 4v4h-4M4 20v-4h4"/></svg>共有の設定</button>
+        </div>
+      </div>
       <input type="file" id="fileInput" accept="application/json" class="hide">
     </div>
   </div>
@@ -571,13 +588,19 @@ $("#q").addEventListener("input",e=>{ filter.q=e.target.value; render(); });
 $("#fPhase").addEventListener("change",e=>{ filter.phase=e.target.value; render(); });
 $("#fSort").addEventListener("change",e=>{ filter.sort=e.target.value; render(); });
 $("#scrim").addEventListener("click",closeDetail);
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeDetail(); closeSync(); closeFlow(); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeDetail(); closeSync(); closeFlow(); closeAdmin(); } });
 
 /* 工程フロー オーバーレイ */
 function openFlow(){ const f=$("#flowFrame"); if(f.getAttribute("src")==="about:blank") f.src="flow.html"; $("#flowOverlay").classList.add("show"); $("#flowOverlay").setAttribute("aria-hidden","false"); }
 function closeFlow(){ $("#flowOverlay").classList.remove("show"); $("#flowOverlay").setAttribute("aria-hidden","true"); }
 $("#btnFlow").addEventListener("click",openFlow);
 $("#flowClose").addEventListener("click",closeFlow);
+
+/* 管理メニュー（書き出し・読み込み・共有） */
+function closeAdmin(){ $("#adminMenu").classList.remove("show"); $("#btnAdmin").setAttribute("aria-expanded","false"); }
+$("#btnAdmin").addEventListener("click",e=>{ e.stopPropagation(); const open=$("#adminMenu").classList.toggle("show"); $("#btnAdmin").setAttribute("aria-expanded",open?"true":"false"); });
+$("#adminMenu").addEventListener("click",e=>{ if(e.target.closest("button")) closeAdmin(); });
+document.addEventListener("click",closeAdmin);
 
 /* 共有モーダル配線 */
 $("#btnSync").addEventListener("click",openSync);
