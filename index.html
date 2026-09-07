@@ -121,6 +121,10 @@
   .field .uwrap input{border:0;background:transparent;padding:0;box-shadow:none;flex:1;min-width:0;text-align:right}
   .field .uwrap input:focus{box-shadow:none}
   .field .uwrap .unit{flex:none;color:var(--muted);font-size:13px;font-weight:700}
+  /* 自動計算フィールド（値入率）は入力不可・見た目で区別 */
+  .field .uwrap.auto{background:var(--surface-2);border-style:dashed}
+  .field .uwrap.auto:focus-within{box-shadow:none;border-color:var(--line-strong)}
+  .field .uwrap.auto input{color:var(--ink);font-weight:700;cursor:default}
 
   .summary{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;flex-wrap:wrap}
   .summary .big{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent)}
@@ -324,7 +328,7 @@ function currentPhase(p){
 /* ======================= 状態・保存 ======================= */
 const LS_KEY="shinshohin-donyu-v1";
 function seedState(){
-  const ex=newProduct({name:"サンプル商品（削除できます）",owner:"営業 田中",client:"○○スーパー",retail:"128",unit:"92",markup:"28%",spec:"200ml × 20本",start:"2026-05-01",note:"記入例です。不要なら「削除」で消してください。"});
+  const ex=newProduct({name:"サンプル商品（削除できます）",owner:"営業 田中",client:"○○スーパー",retail:"128",unit:"92",cost:"68",spec:"200ml × 20本",start:"2026-05-01",note:"記入例です。不要なら「削除」で消してください。"});
   ex.steps["01"]={status:"完了",start:"",done:"2026-05-07",note:""};
   ex.steps["02"]={status:"進行中",start:"2026-05-10",done:"",note:"試作中"};
   return {version:1, products:[ex]};
@@ -467,28 +471,40 @@ function openDetail(id){
   const body=el("div","dbody");
   // 商品情報
   const info=el("div","infogrid");
-  const F=(label,key,type,full,unit)=>{
+  const F=(label,key,type,full,unit,after)=>{
     const f=el("div","field"+(full?" full":"")); f.innerHTML=`<label>${label}</label>`;
     const inp=el(type==="ta"?"textarea":"input");
     if(type==="date") inp.type="date"; else if(type!=="ta") inp.type="text";
     if(unit) inp.setAttribute("inputmode","decimal");
     inp.value=p[key]||"";
     // 入力を即時に反映（ヘッダーの商品名も追従）
-    inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.firstChild.textContent=p.name||"（商品名未設定）"; });
+    inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.firstChild.textContent=p.name||"（商品名未設定）"; if(after) after(); });
     // 確定時（フォーカスを外したとき）に保存し、一覧カードへ反映
-    inp.addEventListener("change",()=>{ p[key]=inp.value; persist(); render(); });
+    inp.addEventListener("change",()=>{ p[key]=inp.value; if(after) after(); persist(); render(); });
     if(unit){ const w=el("div","uwrap"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:unit})); f.appendChild(w); }
     else f.appendChild(inp);
     return f;
+  };
+  // 値入率＝（希望納入単価 − 目標製造原価）÷ 希望納入単価 ×100（小数第2位）。自動計算・入力不可
+  let markupInput=null;
+  const calcMarkup=()=>{ const u=parseFloat(p.unit), c=parseFloat(p.cost); return (isFinite(u)&&u>0&&isFinite(c))? ((u-c)/u*100).toFixed(2) : ""; };
+  const refreshMarkup=()=>{ const v=calcMarkup(); p.markup=v; if(markupInput) markupInput.value=v; };
+  const markupField=()=>{
+    const f=el("div","field"); f.innerHTML=`<label>値入率（自動計算）</label>`;
+    const inp=el("input"); inp.type="text"; inp.readOnly=true; inp.value=calcMarkup();
+    inp.title="希望納入単価と目標製造原価から自動計算されます"; inp.placeholder="—";
+    markupInput=inp;
+    const w=el("div","uwrap auto"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:"％"}));
+    f.appendChild(w); return f;
   };
   info.appendChild(F("商品名","name","text"));
   info.appendChild(F("営業担当","owner","text"));
   info.appendChild(F("想定販売先","client","text"));
   info.appendChild(F("希望小売価格","retail","text",false,"円"));
-  info.appendChild(F("希望納入単価","unit","text",false,"円"));
-  info.appendChild(F("目標製造原価","cost","text",false,"円"));
+  info.appendChild(F("希望納入単価","unit","text",false,"円",refreshMarkup));
+  info.appendChild(F("目標製造原価","cost","text",false,"円",refreshMarkup));
   info.appendChild(F("規格","spec","text"));
-  info.appendChild(F("値入率","markup","text",false,"％"));
+  info.appendChild(markupField());
   info.appendChild(F("企画開始日","planStart","date"));
   info.appendChild(F("販売開始日","start","date"));
   info.appendChild(F("メモ","note","ta",true));
