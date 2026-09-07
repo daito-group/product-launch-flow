@@ -82,6 +82,11 @@
   .pcard .pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .pcard h3{margin:0;font-size:15.5px;font-weight:800;line-height:1.35}
   .pcard .pmeta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:3px}
+  .pcard .cmemo{margin-top:2px}
+  .pcard .cmemo label{display:block;font-size:10px;color:var(--faint);font-weight:700;margin-bottom:3px;letter-spacing:.04em}
+  .pcard .cmemo textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12px;line-height:1.55;color:var(--ink-soft);resize:vertical;min-height:38px;outline:0;transition:.14s;cursor:text}
+  .pcard .cmemo textarea:hover{border-color:var(--line-strong)}
+  .pcard .cmemo textarea:focus{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--accent-soft)}
   .phasetag{font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:3px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap;flex:none}
   .phasetag.done{background:var(--ok-bg);color:var(--ok)}
   .bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}
@@ -450,6 +455,13 @@ function card(p){
       <span class="dot t">未着手 ${countStat(p,"未着手")}</span>
       ${countStat(p,"スキップ")?`<span class="dot s">スキップ ${countStat(p,"スキップ")}</span>`:""}
     </div>`;
+  // メモ（一覧で表示・その場で編集）
+  const memo=el("div","cmemo"); memo.innerHTML=`<label>メモ</label>`;
+  const ta=el("textarea"); ta.value=p.note||""; ta.placeholder="メモを入力…"; ta.rows=2; ta.title="クリックで編集";
+  // カード全体はクリックで詳細が開くため、メモ操作は伝播を止める
+  ["click","mousedown","dblclick","keydown"].forEach(ev=>ta.addEventListener(ev,e=>e.stopPropagation()));
+  ta.addEventListener("change",()=>{ p.note=ta.value; persist(); });
+  memo.appendChild(ta); c.appendChild(memo);
   c.addEventListener("click",()=>openDetail(p.id));
   return c;
 }
