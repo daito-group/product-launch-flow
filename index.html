@@ -308,26 +308,29 @@ const PHASES = [
   {key:"P1", name:"PHASE 1", steps:[
     ["01","商品イメージの共有"],
     ["02","商品開発"],
+    ["12","社内試食"],
     ["03","レシピ共有"],
+    ["04","原料選定"],
+    ["13","仮製造工程表の作成"],
+    ["14","仮見積りの作成"],
   ]},
   {key:"P2", name:"PHASE 2", steps:[
-    ["04","原料選定"],
     ["05","カルテ作成"],
     ["06","倉庫スケジュール作成"],
     ["07","パッケージ作成"],
+    ["08","大量生産の試作"],
+    ["15","菌検査"],
   ]},
   {key:"P3", name:"PHASE 3", steps:[
-    ["08","大量生産の試作"],
     ["09","従業員試食"],
-  ]},
-  {key:"P4", name:"PHASE 4", steps:[
     ["10","最終見積りの作成"],
     ["11","納品スケジュールの確定"],
   ]},
 ];
 const STEP_LIST = [];   // {no,phaseKey,phaseName,name,owner,days,deliv,gate}
 PHASES.forEach(p=>p.steps.forEach(s=>STEP_LIST.push({no:s[0],phaseKey:p.key,phaseName:p.name,name:s[1],owner:s[2],days:s[3],deliv:s[4],gate:!!s[5]})));
-const TOTAL = STEP_LIST.length;   // 11
+const STEP_NO = {}; STEP_LIST.forEach((s,i)=>STEP_NO[s.no]=String(i+1).padStart(2,"0"));   // 工程IDは据え置き、表示番号のみ通し
+const TOTAL = STEP_LIST.length;   // 15
 const STATUSES = ["未着手","進行中","完了"];
 const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":""};
 const SETTLED = ["完了"];   // 進捗・フェーズ判定で「処理済み」とみなす
@@ -608,7 +611,7 @@ function stepRow(p,s){
   const row=el("div","step"+(gate?" gate":""));
   const parts=[]; if(owner)parts.push(owner); if(days)parts.push("目安 "+days); if(deliv)parts.push(deliv);
   const subHtml=parts.length?`<div class="ssub">${esc(parts.join("｜"))}</div>`:"";
-  row.innerHTML=`<div class="sno"><span>${no}</span></div>
+  row.innerHTML=`<div class="sno"><span>${STEP_NO[no]||no}</span></div>
     <div><div class="sname">${gate?"【ゲート】":""}${esc(name)}</div>${subHtml}</div>`;
   const ctrl=el("div","sctrl");
   const sel=el("select","sstat "+(STAT_CLASS[st.status]||""));
