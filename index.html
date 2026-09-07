@@ -132,6 +132,8 @@
   .step .ssub{font-size:11px;color:var(--muted);margin-top:1px}
   .step .sctrl{grid-column:2;display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:8px}
   .step .sctrl select,.step .sctrl input{border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;padding:5px 7px;font-size:12px;outline:0}
+  .step .sctrl input.sowner{width:108px}
+  .step .sctrl input.sowner:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .step .sctrl .sstat{font-weight:800}
   .sstat.st-done{color:var(--ok);border-color:var(--ok)!important;background:var(--ok-bg)}
   .sstat.st-prog{color:var(--warn);border-color:var(--warn)!important;background:var(--warn-bg)}
@@ -271,7 +273,7 @@ const PHASES = [
   {key:"P2", name:"PHASE 2", steps:[
     ["04","原料選定"],
     ["05","カルテ作成"],
-    ["06","倉庫"],
+    ["06","倉庫スケジュール作成"],
     ["07","パッケージ作成"],
   ]},
   {key:"P3", name:"PHASE 3", steps:[
@@ -298,7 +300,7 @@ let toastTimer=null;
 function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3200); }
 
 function newProduct(seed){
-  const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:""});
+  const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
   return Object.assign({id:uid(),name:"",owner:"",client:"",retail:"",unit:"",markup:"",spec:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+((p.steps[s.no]||{}).status==="完了"?1:0),0); }
@@ -523,7 +525,8 @@ function summaryHTML(p){
 function updateSummary(p){ const s=$("#dsummary"); if(s) s.innerHTML=summaryHTML(p); }
 function stepRow(p,s){
   const [no,name,owner,days,deliv,gate]=s;
-  const st=p.steps[no]||(p.steps[no]={status:"未着手",start:"",done:"",note:""});
+  const st=p.steps[no]||(p.steps[no]={status:"未着手",start:"",done:"",note:"",owner:""});
+  if(st.owner===undefined) st.owner="";
   const row=el("div","step"+(gate?" gate":""));
   const parts=[]; if(owner)parts.push(owner); if(days)parts.push("目安 "+days); if(deliv)parts.push(deliv);
   const subHtml=parts.length?`<div class="ssub">${esc(parts.join("｜"))}</div>`:"";
@@ -533,11 +536,15 @@ function stepRow(p,s){
   const sel=el("select","sstat "+(STAT_CLASS[st.status]||""));
   sel.innerHTML=STATUSES.map(v=>`<option${v===st.status?" selected":""}>${v}</option>`).join("");
   sel.addEventListener("change",()=>{ st.status=sel.value; sel.className="sstat "+(STAT_CLASS[st.status]||""); if(st.status==="完了"&&!st.done) st.done=new Date().toISOString().slice(0,10); persist(); updateSummary(p); render(); });
+  const own=el("input","sowner"); own.type="text"; own.placeholder="担当者名"; own.value=st.owner||""; own.title="この工程の担当者";
+  own.addEventListener("input",()=>{ st.owner=own.value; });
+  own.addEventListener("change",()=>{ st.owner=own.value; persist(); });
   const d1=el("input"); d1.type="date"; d1.value=st.start||""; d1.title="開始日";
   d1.addEventListener("change",()=>{ st.start=d1.value; persist(); });
   const d2=el("input"); d2.type="date"; d2.value=st.done||""; d2.title="完了日";
   d2.addEventListener("change",()=>{ st.done=d2.value; persist(); });
   ctrl.appendChild(sel);
+  ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"担当"})); ctrl.appendChild(own);
   ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"開始"})); ctrl.appendChild(d1);
   ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"完了"})); ctrl.appendChild(d2);
   row.appendChild(ctrl);
