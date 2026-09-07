@@ -110,6 +110,14 @@
   .field label{font-size:11px;color:var(--muted);font-weight:700}
   .field input,.field select,.field textarea{border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:7px 9px;outline:0;transition:.14s}
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  /* 情報フォームの入力文字は右詰（メモ欄textareaは除く） */
+  .infogrid input{text-align:right}
+  /* 単位つきフィールド（円・％） */
+  .field .uwrap{display:flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:7px 9px;transition:.14s}
+  .field .uwrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .field .uwrap input{border:0;background:transparent;padding:0;box-shadow:none;flex:1;min-width:0;text-align:right}
+  .field .uwrap input:focus{box-shadow:none}
+  .field .uwrap .unit{flex:none;color:var(--muted);font-size:13px;font-weight:700}
 
   .summary{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:16px;flex-wrap:wrap}
   .summary .big{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent)}
@@ -453,23 +461,26 @@ function openDetail(id){
   const body=el("div","dbody");
   // 商品情報
   const info=el("div","infogrid");
-  const F=(label,key,type,full)=>{
+  const F=(label,key,type,full,unit)=>{
     const f=el("div","field"+(full?" full":"")); f.innerHTML=`<label>${label}</label>`;
     const inp=el(type==="ta"?"textarea":"input");
     if(type==="date") inp.type="date"; else if(type!=="ta") inp.type="text";
+    if(unit) inp.setAttribute("inputmode","decimal");
     inp.value=p[key]||"";
     // 入力を即時に反映（ヘッダーの商品名も追従）
     inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.firstChild.textContent=p.name||"（商品名未設定）"; });
     // 確定時（フォーカスを外したとき）に保存し、一覧カードへ反映
     inp.addEventListener("change",()=>{ p[key]=inp.value; persist(); render(); });
-    f.appendChild(inp); return f;
+    if(unit){ const w=el("div","uwrap"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:unit})); f.appendChild(w); }
+    else f.appendChild(inp);
+    return f;
   };
   info.appendChild(F("商品名","name","text"));
   info.appendChild(F("営業担当","owner","text"));
   info.appendChild(F("想定販売先","client","text"));
-  info.appendChild(F("希望小売価格","retail","text"));
-  info.appendChild(F("希望納入単価","unit","text"));
-  info.appendChild(F("値入率","markup","text"));
+  info.appendChild(F("希望小売価格","retail","text",false,"円"));
+  info.appendChild(F("希望納入単価","unit","text",false,"円"));
+  info.appendChild(F("値入率","markup","text",false,"％"));
   info.appendChild(F("規格","spec","text"));
   info.appendChild(F("販売開始日","start","date"));
   info.appendChild(F("メモ","note","ta",true));
