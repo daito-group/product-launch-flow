@@ -306,9 +306,9 @@ const PHASES = [
 const STEP_LIST = [];   // {no,phaseKey,phaseName,name,owner,days,deliv,gate}
 PHASES.forEach(p=>p.steps.forEach(s=>STEP_LIST.push({no:s[0],phaseKey:p.key,phaseName:p.name,name:s[1],owner:s[2],days:s[3],deliv:s[4],gate:!!s[5]})));
 const TOTAL = STEP_LIST.length;   // 11
-const STATUSES = ["未着手","進行中","完了","保留","スキップ"];
-const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","保留":"st-hold","スキップ":"st-skip","未着手":""};
-const SETTLED = ["完了","スキップ"];   // 進捗・フェーズ判定で「処理済み」とみなす
+const STATUSES = ["未着手","進行中","完了"];
+const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":""};
+const SETTLED = ["完了"];   // 進捗・フェーズ判定で「処理済み」とみなす
 
 /* ======================= helpers ======================= */
 const $ = s=>document.querySelector(s);
@@ -451,13 +451,11 @@ function card(p){
     <div class="mini">
       <span class="dot d">完了 ${countStat(p,"完了")}</span>
       <span class="dot p">進行中 ${countStat(p,"進行中")}</span>
-      <span class="dot h">保留 ${countStat(p,"保留")}</span>
       <span class="dot t">未着手 ${countStat(p,"未着手")}</span>
-      ${countStat(p,"スキップ")?`<span class="dot s">スキップ ${countStat(p,"スキップ")}</span>`:""}
     </div>`;
   // メモ（一覧で表示・その場で編集）
-  const memo=el("div","cmemo"); memo.innerHTML=`<label>メモ</label>`;
-  const ta=el("textarea"); ta.value=p.note||""; ta.placeholder="メモを入力…"; ta.rows=2; ta.title="クリックで編集";
+  const memo=el("div","cmemo"); memo.innerHTML=`<label>最新情報</label>`;
+  const ta=el("textarea"); ta.value=p.note||""; ta.placeholder="最新情報を入力…"; ta.rows=2; ta.title="クリックで編集";
   // カード全体はクリックで詳細が開くため、メモ操作は伝播を止める
   ["click","mousedown","dblclick","keydown"].forEach(ev=>ta.addEventListener(ev,e=>e.stopPropagation()));
   ta.addEventListener("change",()=>{ p.note=ta.value; persist(); });
@@ -519,7 +517,7 @@ function openDetail(id){
   info.appendChild(markupField());
   info.appendChild(F("企画開始日","planStart","date"));
   info.appendChild(F("販売開始日","start","date"));
-  info.appendChild(F("メモ","note","ta",true));
+  info.appendChild(F("最新情報","note","ta",true));
   body.appendChild(info);
 
   // サマリー
@@ -560,8 +558,6 @@ function summaryHTML(p){
       <div class="counts" style="margin-top:7px">
         <span>完了 ${countStat(p,"完了")} / ${TOTAL}</span>
         <span>進行中 ${countStat(p,"進行中")}</span>
-        <span>保留 ${countStat(p,"保留")}</span>
-        <span>スキップ ${countStat(p,"スキップ")}</span>
         <span>現在：${esc(currentPhase(p))}</span>
       </div>
     </div>`;
