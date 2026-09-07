@@ -92,6 +92,23 @@
   /* 編集：表示と同じ固定サイズ */
   .pcard .cmemo textarea{width:100%;box-sizing:border-box;height:48px;border:1px solid var(--accent);background:var(--surface);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12px;line-height:1.55;color:var(--ink);resize:none;overflow:auto;outline:0;box-shadow:0 0 0 3px var(--accent-soft);cursor:text}
   .phasetag{font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:3px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap;flex:none}
+  .pc-topright{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none}
+  .stagepill{font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px;border:1px solid;white-space:nowrap}
+  .sp-idea{color:var(--ink-soft);border-color:var(--line-strong);background:var(--surface)}
+  .sp-prop{color:var(--warn);border-color:var(--warn);background:var(--warn-bg)}
+  .sp-adopt{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
+  .sp-reject{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
+  /* 不採用の商品は一覧でグレー表示 */
+  .pcard.rejected{background:var(--surface-2)}
+  .pcard.rejected h3,.pcard.rejected .pct,.pcard.rejected .pmeta{color:var(--muted)}
+  .pcard.rejected .bar>i{background:var(--faint)}
+  .pcard.rejected .phasetag{background:var(--surface-3);color:var(--muted)}
+  /* 商品ステータスのプルダウン（詳細ヘッダー） */
+  .stagesel{border:1px solid var(--line-strong);background:var(--surface);border-radius:20px;padding:5px 12px;font-weight:800;font-size:12px;cursor:pointer;outline:0}
+  .stagesel.stage-idea{color:var(--ink-soft);border-color:var(--line-strong)}
+  .stagesel.stage-prop{color:var(--warn);border-color:var(--warn);background:var(--warn-bg)}
+  .stagesel.stage-adopt{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
+  .stagesel.stage-reject{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
   .phasetag.done{background:var(--ok-bg);color:var(--ok)}
   .bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}
   .bar>i{display:block;height:100%;border-radius:6px;background:var(--accent);transition:width .3s}
@@ -112,6 +129,7 @@
   .drawer{position:fixed;top:0;right:0;height:100vh;width:min(680px,96vw);background:var(--paper);box-shadow:var(--shadow-lg);z-index:61;transform:translateX(102%);transition:transform .26s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
   .drawer.show{transform:none}
   .dhead{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;background:var(--surface)}
+  .dhead .dtitle{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .dhead .x{margin-left:auto;border:0;background:transparent;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:grid;place-items:center}
   .dhead .x:hover{background:var(--surface-2);color:var(--ink)}
   .dbody{overflow:auto;padding:16px 18px 40px;flex:1}
@@ -313,6 +331,8 @@ const TOTAL = STEP_LIST.length;   // 11
 const STATUSES = ["未着手","進行中","完了"];
 const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":""};
 const SETTLED = ["完了"];   // 進捗・フェーズ判定で「処理済み」とみなす
+const STAGES = ["構想中","提案中","採用","不採用"];   // 商品ステータス
+const STAGE_KEY = {"構想中":"idea","提案中":"prop","採用":"adopt","不採用":"reject"};
 
 /* ======================= helpers ======================= */
 const $ = s=>document.querySelector(s);
@@ -324,7 +344,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
 
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
-  return Object.assign({id:uid(),name:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",stage:"構想中",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+(SETTLED.includes((p.steps[s.no]||{}).status)?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -337,7 +357,7 @@ function currentPhase(p){
 /* ======================= 状態・保存 ======================= */
 const LS_KEY="shinshohin-donyu-v1";
 function seedState(){
-  const ex=newProduct({name:"サンプル商品（削除できます）",owner:"営業 田中",client:"○○スーパー",retail:"128",unit:"92",cost:"68",spec:"200ml × 20本",start:"2026-05-01",note:"記入例です。不要なら「削除」で消してください。"});
+  const ex=newProduct({name:"サンプル商品（削除できます）",stage:"提案中",owner:"営業 田中",client:"○○スーパー",retail:"128",unit:"92",cost:"68",spec:"200ml × 20本",start:"2026-05-01",note:"記入例です。不要なら「削除」で消してください。"});
   ex.steps["01"]={status:"完了",start:"",done:"2026-05-07",note:""};
   ex.steps["02"]={status:"進行中",start:"2026-05-10",done:"",note:"試作中"};
   return {version:1, products:[ex]};
@@ -440,15 +460,21 @@ function render(){
   view.innerHTML=""; view.appendChild(g);
 }
 function card(p){
-  const pct=progress(p), cp=currentPhase(p), full=pct===100;
-  const c=el("div","pcard");
+  const stage=p.stage||"構想中";
+  const rejected=stage==="不採用";
+  const pct=rejected?0:progress(p);           // 不採用は一覧では0%表示
+  const cp=currentPhase(p), full=!rejected&&pct===100;
+  const c=el("div","pcard"+(rejected?" rejected":""));
   c.innerHTML=`
     <div class="pc-top">
       <div style="min-width:0">
         <h3>${esc(p.name||"（商品名未設定）")}</h3>
         <div class="pmeta">${p.client?`<span>${esc(p.client)}</span>`:""}${p.owner?`<span>営業 ${esc(p.owner)}</span>`:""}${p.start?`<span>販売開始 ${esc(p.start)}</span>`:""}</div>
       </div>
-      <span class="phasetag${full?" done":""}">${esc(cp)}</span>
+      <div class="pc-topright">
+        <span class="stagepill sp-${STAGE_KEY[stage]}">${esc(stage)}</span>
+        <span class="phasetag${full?" done":""}">${esc(rejected?"不採用":cp)}</span>
+      </div>
     </div>
     <div class="prow"><span class="mini">全体進捗</span><span class="pct">${pct}%</span></div>
     <div class="bar${full?" full":""}"><i style="width:${pct}%"></i></div>
@@ -479,7 +505,13 @@ function openDetail(id){
   d.innerHTML="";
   // head
   const head=el("div","dhead");
-  head.innerHTML=`<div style="font-weight:800;font-size:15px">${esc(p.name||"（商品名未設定）")}</div>`;
+  head.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（商品名未設定）")}</div>`;
+  if(!p.stage) p.stage="構想中";
+  const stageSel=el("select","stagesel stage-"+STAGE_KEY[p.stage]);
+  stageSel.title="商品ステータス";
+  stageSel.innerHTML=STAGES.map(s=>`<option${s===p.stage?" selected":""}>${s}</option>`).join("");
+  stageSel.addEventListener("change",()=>{ p.stage=stageSel.value; stageSel.className="stagesel stage-"+STAGE_KEY[p.stage]; persist(); render(); });
+  head.appendChild(stageSel);
   const x=el("button","x",`<svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>`);
   x.onclick=closeDetail; head.appendChild(x);
   d.appendChild(head);
