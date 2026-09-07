@@ -92,7 +92,7 @@
   .mini{display:flex;gap:5px;flex-wrap:wrap;font-size:10.5px;color:var(--muted)}
   .dot{display:inline-flex;align-items:center;gap:4px}
   .dot::before{content:"";width:7px;height:7px;border-radius:50%}
-  .dot.d::before{background:var(--ok)} .dot.p::before{background:var(--warn)} .dot.h::before{background:var(--bad)} .dot.t::before{background:var(--faint)}
+  .dot.d::before{background:var(--ok)} .dot.p::before{background:var(--warn)} .dot.h::before{background:var(--bad)} .dot.t::before{background:var(--faint)} .dot.s::before{background:var(--muted)}
 
   .empty{text-align:center;color:var(--muted);padding:60px 20px}
   .empty svg{width:46px;height:46px;stroke:var(--line-strong);margin-bottom:10px}
@@ -146,6 +146,7 @@
   .sstat.st-done{color:var(--ok);border-color:var(--ok)!important;background:var(--ok-bg)}
   .sstat.st-prog{color:var(--warn);border-color:var(--warn)!important;background:var(--warn-bg)}
   .sstat.st-hold{color:var(--bad);border-color:var(--bad)!important;background:var(--bad-bg)}
+  .sstat.st-skip{color:var(--muted);border-color:var(--line-strong)!important;background:var(--surface-3)}
   .step .snote{grid-column:2;margin-top:7px;width:100%;resize:vertical;min-height:32px;border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;padding:6px 8px;font-size:12px;outline:0}
   .dlabel{font-size:10px;color:var(--faint);align-self:center}
 
@@ -296,8 +297,9 @@ const PHASES = [
 const STEP_LIST = [];   // {no,phaseKey,phaseName,name,owner,days,deliv,gate}
 PHASES.forEach(p=>p.steps.forEach(s=>STEP_LIST.push({no:s[0],phaseKey:p.key,phaseName:p.name,name:s[1],owner:s[2],days:s[3],deliv:s[4],gate:!!s[5]})));
 const TOTAL = STEP_LIST.length;   // 11
-const STATUSES = ["未着手","進行中","完了","保留"];
-const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","保留":"st-hold","未着手":""};
+const STATUSES = ["未着手","進行中","完了","保留","スキップ"];
+const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","保留":"st-hold","スキップ":"st-skip","未着手":""};
+const SETTLED = ["完了","スキップ"];   // 進捗・フェーズ判定で「処理済み」とみなす
 
 /* ======================= helpers ======================= */
 const $ = s=>document.querySelector(s);
@@ -311,11 +313,11 @@ function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
   return Object.assign({id:uid(),name:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
-function completed(p){ return STEP_LIST.reduce((n,s)=>n+((p.steps[s.no]||{}).status==="完了"?1:0),0); }
+function completed(p){ return STEP_LIST.reduce((n,s)=>n+(SETTLED.includes((p.steps[s.no]||{}).status)?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
 function countStat(p,st){ return STEP_LIST.reduce((n,s)=>n+((p.steps[s.no]||{}).status===st?1:0),0); }
 function currentPhase(p){
-  for(const ph of PHASES){ for(const s of ph.steps){ if((p.steps[s[0]]||{}).status!=="完了") return ph.name; } }
+  for(const ph of PHASES){ for(const s of ph.steps){ if(!SETTLED.includes((p.steps[s[0]]||{}).status)) return ph.name; } }
   return "完了";
 }
 
@@ -442,6 +444,7 @@ function card(p){
       <span class="dot p">進行中 ${countStat(p,"進行中")}</span>
       <span class="dot h">保留 ${countStat(p,"保留")}</span>
       <span class="dot t">未着手 ${countStat(p,"未着手")}</span>
+      ${countStat(p,"スキップ")?`<span class="dot s">スキップ ${countStat(p,"スキップ")}</span>`:""}
     </div>`;
   c.addEventListener("click",()=>openDetail(p.id));
   return c;
@@ -499,7 +502,7 @@ function openDetail(id){
   const curPhaseName=currentPhase(p);
   PHASES.forEach(ph=>{
     const grp=el("div","phasegrp");
-    const done=ph.steps.filter(s=>(p.steps[s[0]]||{}).status==="完了").length;
+    const done=ph.steps.filter(s=>SETTLED.includes((p.steps[s[0]]||{}).status)).length;
     const sm=el("div","psum");
     sm.innerHTML=`<span class="pp">${esc(ph.name)}</span><span class="pdone">${done}/${ph.steps.length}</span>`;
     grp.appendChild(sm);
@@ -530,6 +533,7 @@ function summaryHTML(p){
         <span>完了 ${countStat(p,"完了")} / ${TOTAL}</span>
         <span>進行中 ${countStat(p,"進行中")}</span>
         <span>保留 ${countStat(p,"保留")}</span>
+        <span>スキップ ${countStat(p,"スキップ")}</span>
         <span>現在：${esc(currentPhase(p))}</span>
       </div>
     </div>`;
