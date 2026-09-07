@@ -117,12 +117,9 @@
   .summary .counts{display:flex;gap:12px;font-size:11.5px;color:var(--muted);flex-wrap:wrap}
 
   .phasegrp{margin-bottom:14px;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;background:var(--surface)}
-  .phasegrp>summary{list-style:none;cursor:pointer;padding:9px 13px;background:var(--surface-2);display:flex;align-items:center;gap:9px;font-weight:800;font-size:12.5px}
-  .phasegrp>summary::-webkit-details-marker{display:none}
-  .phasegrp>summary .chev{transition:.2s;color:var(--muted)}
-  .phasegrp[open]>summary .chev{transform:rotate(90deg)}
-  .phasegrp>summary .pp{color:var(--accent-ink);letter-spacing:.03em}
-  .phasegrp>summary .pdone{margin-left:auto;font-size:11px;color:var(--muted);font-weight:700}
+  .phasegrp>.psum{padding:9px 13px;background:var(--surface-2);display:flex;align-items:center;gap:9px;font-weight:800;font-size:12.5px;border-bottom:1px solid var(--line)}
+  .phasegrp>.psum .pp{color:var(--accent-ink);letter-spacing:.03em}
+  .phasegrp>.psum .pdone{margin-left:auto;font-size:11px;color:var(--muted);font-weight:700}
 
   .step{display:grid;grid-template-columns:34px 1fr;gap:0 10px;padding:11px 13px;border-top:1px solid var(--line)}
   .step .sno{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
@@ -485,11 +482,10 @@ function openDetail(id){
   // フェーズ別チェックリスト
   const curPhaseName=currentPhase(p);
   PHASES.forEach(ph=>{
-    const grp=el("details","phasegrp");
-    if(ph.name===curPhaseName) grp.open=true;
+    const grp=el("div","phasegrp");
     const done=ph.steps.filter(s=>(p.steps[s[0]]||{}).status==="完了").length;
-    const sm=el("summary");
-    sm.innerHTML=`<svg class="icon chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><span class="pp">${esc(ph.name)}</span><span class="pdone">${done}/${ph.steps.length}</span>`;
+    const sm=el("div","psum");
+    sm.innerHTML=`<span class="pp">${esc(ph.name)}</span><span class="pdone">${done}/${ph.steps.length}</span>`;
     grp.appendChild(sm);
     ph.steps.forEach(s=>grp.appendChild(stepRow(p,s)));
     body.appendChild(grp);
@@ -535,18 +531,18 @@ function stepRow(p,s){
   const ctrl=el("div","sctrl");
   const sel=el("select","sstat "+(STAT_CLASS[st.status]||""));
   sel.innerHTML=STATUSES.map(v=>`<option${v===st.status?" selected":""}>${v}</option>`).join("");
-  sel.addEventListener("change",()=>{ st.status=sel.value; sel.className="sstat "+(STAT_CLASS[st.status]||""); if(st.status==="完了"&&!st.done) st.done=new Date().toISOString().slice(0,10); persist(); updateSummary(p); render(); });
+  sel.addEventListener("change",()=>{ st.status=sel.value; sel.className="sstat "+(STAT_CLASS[st.status]||""); persist(); updateSummary(p); render(); });
   const own=el("input","sowner"); own.type="text"; own.placeholder="担当者名"; own.value=st.owner||""; own.title="この工程の担当者";
   own.addEventListener("input",()=>{ st.owner=own.value; });
   own.addEventListener("change",()=>{ st.owner=own.value; persist(); });
-  const d1=el("input"); d1.type="date"; d1.value=st.start||""; d1.title="開始日";
+  const d1=el("input"); d1.type="date"; d1.value=st.start||""; d1.title="依頼日";
   d1.addEventListener("change",()=>{ st.start=d1.value; persist(); });
-  const d2=el("input"); d2.type="date"; d2.value=st.done||""; d2.title="完了日";
+  const d2=el("input"); d2.type="date"; d2.value=st.done||""; d2.title="〆切";
   d2.addEventListener("change",()=>{ st.done=d2.value; persist(); });
   ctrl.appendChild(sel);
   ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"担当"})); ctrl.appendChild(own);
-  ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"開始"})); ctrl.appendChild(d1);
-  ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"完了"})); ctrl.appendChild(d2);
+  ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"依頼日"})); ctrl.appendChild(d1);
+  ctrl.appendChild(Object.assign(el("span","dlabel"),{textContent:"〆切"})); ctrl.appendChild(d2);
   row.appendChild(ctrl);
   const note=el("textarea","snote"); note.placeholder="備考（差戻し理由・暫定値・申し送りなど）"; note.value=st.note||"";
   note.addEventListener("change",()=>{ st.note=note.value; persist(); });
