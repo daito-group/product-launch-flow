@@ -84,9 +84,13 @@
   .pcard .pmeta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:3px}
   .pcard .cmemo{margin-top:2px}
   .pcard .cmemo label{display:block;font-size:10px;color:var(--faint);font-weight:700;margin-bottom:3px;letter-spacing:.04em}
-  .pcard .cmemo textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12px;line-height:1.55;color:var(--ink-soft);resize:vertical;min-height:38px;outline:0;transition:.14s;cursor:text}
-  .pcard .cmemo textarea:hover{border-color:var(--line-strong)}
-  .pcard .cmemo textarea:focus{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--accent-soft)}
+  .pcard .cmemo .off{display:none!important}
+  /* 表示：2行固定・あふれたら2行目末尾を…で省略 */
+  .pcard .cmemo .memo-view{box-sizing:border-box;height:48px;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:7px 9px;font-size:12px;line-height:1.55;color:var(--ink-soft);cursor:text;white-space:pre-wrap;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
+  .pcard .cmemo .memo-view:hover{border-color:var(--line-strong)}
+  .pcard .cmemo .memo-view.empty{color:var(--faint)}
+  /* 編集：表示と同じ固定サイズ */
+  .pcard .cmemo textarea{width:100%;box-sizing:border-box;height:48px;border:1px solid var(--accent);background:var(--surface);border-radius:8px;padding:7px 9px;font-family:inherit;font-size:12px;line-height:1.55;color:var(--ink);resize:none;overflow:auto;outline:0;box-shadow:0 0 0 3px var(--accent-soft);cursor:text}
   .phasetag{font-size:10.5px;font-weight:800;letter-spacing:.03em;padding:3px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap;flex:none}
   .phasetag.done{background:var(--ok-bg);color:var(--ok)}
   .bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}
@@ -453,13 +457,15 @@ function card(p){
       <span class="dot p">進行中 ${countStat(p,"進行中")}</span>
       <span class="dot t">未着手 ${countStat(p,"未着手")}</span>
     </div>`;
-  // メモ（一覧で表示・その場で編集）
-  const memo=el("div","cmemo"); memo.innerHTML=`<label>最新情報</label>`;
-  const ta=el("textarea"); ta.value=p.note||""; ta.placeholder="最新情報を入力…"; ta.rows=2; ta.title="クリックで編集";
-  // カード全体はクリックで詳細が開くため、メモ操作は伝播を止める
-  ["click","mousedown","dblclick","keydown"].forEach(ev=>ta.addEventListener(ev,e=>e.stopPropagation()));
-  ta.addEventListener("change",()=>{ p.note=ta.value; persist(); });
-  memo.appendChild(ta); c.appendChild(memo);
+  // 最新状況（一覧で表示・その場で編集）。枠は固定サイズ、あふれたら2行目末尾を…で省略
+  const memo=el("div","cmemo"); memo.innerHTML=`<label>最新状況</label>`;
+  const view=el("div","memo-view"+(p.note?"":" empty")); view.textContent=p.note||"最新状況を入力…"; view.title="クリックで編集";
+  const ta=el("textarea","off"); ta.value=p.note||""; ta.placeholder="最新状況を入力…";
+  // カード全体はクリックで詳細が開くため、最新状況の操作は伝播を止める
+  [view,ta].forEach(elm=>["click","mousedown","dblclick","keydown"].forEach(ev=>elm.addEventListener(ev,e=>e.stopPropagation())));
+  view.addEventListener("click",()=>{ view.classList.add("off"); ta.classList.remove("off"); ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); });
+  ta.addEventListener("blur",()=>{ p.note=ta.value; persist(); view.textContent=p.note||"最新状況を入力…"; view.classList.toggle("empty",!p.note); ta.classList.add("off"); view.classList.remove("off"); });
+  memo.appendChild(view); memo.appendChild(ta); c.appendChild(memo);
   c.addEventListener("click",()=>openDetail(p.id));
   return c;
 }
@@ -517,7 +523,7 @@ function openDetail(id){
   info.appendChild(markupField());
   info.appendChild(F("企画開始日","planStart","date"));
   info.appendChild(F("販売開始日","start","date"));
-  info.appendChild(F("最新情報","note","ta",true));
+  info.appendChild(F("最新状況","note","ta",true));
   body.appendChild(info);
 
   // サマリー
@@ -541,7 +547,7 @@ function openDetail(id){
   const foot=el("div","drawer-foot");
   const trash=`<svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M6 6v14a1 1 0 001 1h10a1 1 0 001-1V6"/><path d="M10 11v6M14 11v6"/></svg>`;
   const del=el("button","btn danger",trash+"削除");
-  del.onclick=()=>{ if(del.classList.contains("armed")){ state.products=state.products.filter(x=>x.id!==id); persist(); closeDetail(); render(); toast("削除しました"); } else { del.classList.add("armed"); del.innerHTML=trash+"もう一度で削除"; setTimeout(()=>{del.classList.remove("armed");del.innerHTML=trash+"削除";},2600); } };
+  del.onclick=()=>{ if(confirm(`「${p.name||"この商品"}」を削除します。\nこの操作は元に戻せません。本当に削除してよろしいですか？`)){ state.products=state.products.filter(x=>x.id!==id); persist(); closeDetail(); render(); toast("削除しました"); } };
   const dup=el("button","btn","複製");
   dup.onclick=()=>{ const np=JSON.parse(JSON.stringify(p)); np.id=uid(); np.name=(p.name||"商品")+"（複製）"; np.createdAt=Date.now(); state.products.push(np); persist(); render(); openDetail(np.id); toast("複製しました"); };
   const save=el("button","btn primary",`<svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>保存`);
