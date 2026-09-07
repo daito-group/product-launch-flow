@@ -219,9 +219,9 @@
 <div class="wrap">
   <div class="kpis" id="kpis"></div>
   <div class="toolbar">
-    <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="商品名・得意先で検索…"></div>
+    <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="商品名・販売先・営業で検索…"></div>
     <select class="f" id="fPhase"><option value="">全フェーズ</option></select>
-    <select class="f" id="fSort"><option value="recent">新しい順</option><option value="progress">進捗が高い順</option><option value="progress_asc">進捗が低い順</option><option value="launch">発売日が近い順</option></select>
+    <select class="f" id="fSort"><option value="recent">新しい順</option><option value="progress">進捗が高い順</option><option value="progress_asc">進捗が低い順</option><option value="start">販売開始日が近い順</option></select>
   </div>
   <div id="view"></div>
 </div>
@@ -251,7 +251,7 @@
 
 <div class="flow-overlay" id="flowOverlay" aria-hidden="true">
   <div class="flow-head">
-    <span class="flow-title">新商品導入フロー（工程の全体像・24工程＋5ゲート）</span>
+    <span class="flow-title">新商品導入フロー（工程の全体像・詳細版の参考資料）</span>
     <a class="btn ghost" id="flowOpenTab" href="flow.html" target="_blank" rel="noopener" title="別タブで開く"><svg class="icon" viewBox="0 0 24 24"><path d="M14 3h7v7M21 3l-9 9M10 5H5a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5"/></svg>別タブ</a>
     <button class="btn primary" id="flowClose"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>閉じる</button>
   </div>
@@ -261,57 +261,31 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ======================= 工程定義（24工程＋5ゲート） ======================= */
+/* ======================= 工程定義（4フェーズ・11工程） ======================= */
 const PHASES = [
-  {key:"P0", name:"PHASE 0 引合・情報収集", steps:[
-    ["01","引合受付・ニーズヒアリング","営業（開発同席）","3〜5日","引合シート（要件定義書）／賞味期限の希望を必ず確定"],
-    ["02","市場・競合調査","企画・営業","1〜2週","競合比較表（実勢価格・内容量・g単価・原材料）"],
+  {key:"P1", name:"PHASE 1", steps:[
+    ["01","商品イメージの共有"],
+    ["02","商品開発"],
+    ["03","レシピ共有"],
   ]},
-  {key:"P1", name:"PHASE 1 企画", steps:[
-    ["03","新商品案の立案","企画・開発","1〜2週","商品企画書（コンセプト・目標原価・使用ライン）"],
-    ["G1","企画会議","営業部長ほか","—","開発着手の可否を判定（NG＝差戻し／辞退）",true],
+  {key:"P2", name:"PHASE 2", steps:[
+    ["04","原料選定"],
+    ["05","カルテ作成"],
+    ["06","倉庫"],
+    ["07","パッケージ作成"],
   ]},
-  {key:"P2", name:"PHASE 2 開発（ラボ）", steps:[
-    ["04","原料・資材の選定、調達可否の確認","購買・開発","1〜2週","原料規格書一式・仕入先見積（先に規格書入手）"],
-    ["05","商品の開発（レシピ設計・ラボ試作）","開発","3〜6週","試作配合表・試作記録・ラボ試作品"],
-    ["06","アレルゲン・原産地・添加物の一次チェック","品質保証","3〜5日","アレルゲン28品目一覧・法規チェック（一次）"],
-    ["07","社内試食①（ラボ試作品）","開発（主催）","1日","官能評価シート・改良指示（評価軸を固定）"],
-    ["G2","試作品評価会議","全部門","—","量産試作に進む可否を判定（NG＝05へ戻る）",true],
+  {key:"P3", name:"PHASE 3", steps:[
+    ["08","大量生産の試作"],
+    ["09","従業員試食"],
   ]},
-  {key:"P3", name:"PHASE 3 量産試作", steps:[
-    ["08","実機ライン適性の事前検討","製造技術・製造","1週","実機試作計画書・製造工程図（案）・治具手配"],
-    ["09","大量生産の試作（実機試作）","製造・開発・品証","1〜2日","実機試作報告書・量産サンプル（歩留り/タクト測定）"],
-    ["10","社内試食②（実機試作品）","開発（主催）","1日","官能評価シート②・ラボ品との差異所見"],
-    ["G3","量産適性判定","全部門","—","この条件で量産＝提案してよいかを判定",true],
-  ]},
-  {key:"P4", name:"PHASE 4 検証・エビデンス", steps:[
-    ["11","保存試験・賞味期限の設定","品質保証・開発","賞味期限×1.2","保存試験成績書・賞味期限設定根拠書（全体の律速）"],
-    ["12","栄養成分分析","品質保証","2〜3週","分析成績書（外部機関）※実機試作直後に発注"],
-    ["13","包装資材の決定・表示ラベルの設計","購買・品証・開発","2〜3週","包材仕様書・一括表示案・法規チェック（最終）"],
-    ["14","衛生・異物リスク評価（HACCP）","品質保証・製造","1週","HACCPプラン（改訂）・作業標準書"],
-  ]},
-  {key:"P5", name:"PHASE 5 提案準備", steps:[
-    ["15","商品カルテ（商品規格書）の作成","品質保証・開発","3〜5日","商品カルテ（04・11〜14のデータを転記）"],
-    ["16","原価計算・見積の作成","営業・経理・製造技術","3〜5日","原価計算書・見積書（段階見積／初期費用を別建て）"],
-    ["G4","提案価格の社内決裁","営業部長・経理・工場長","—","提案価格の可否・値引き下限を決定",true],
-  ]},
-  {key:"P6", name:"PHASE 6 提案・商談", steps:[
-    ["17","提案","営業（開発同席）","1日","提案書・商品カルテ・見積・実機サンプル持参"],
-    ["18","先方試食・修正対応","営業・開発","2〜4週","修正対応記録（味→05／価格→G4下限内で即答）"],
-    ["G5","採用可否","得意先","—","得意先による採用の決定（NG＝理由を記録）",true],
-  ]},
-  {key:"P7", name:"PHASE 7 採用後・発売", steps:[
-    ["19","得意先の工場監査・取引先登録","品証・工場長・営業","2〜4週","監査報告書・取引基本契約・取引先登録"],
-    ["20","初回生産計画・原料／資材の発注","生産管理・購買","3〜6週","生産計画・発注書（包材の版が発売日を左右）"],
-    ["21","初回ロット生産・立会","製造・開発・品証","1〜2日","初回生産記録・出荷可否判定"],
-    ["22","初期流動管理","品質保証・製造","初回〜3ロット","初期流動管理記録・通常管理への移行判定"],
-    ["23","発売","営業","—","店頭化"],
-    ["24","発売後フォロー・振り返り","営業・開発・経理","発売3か月後","振り返り報告書（実原価と見積原価の差を検証）"],
+  {key:"P4", name:"PHASE 4", steps:[
+    ["10","最終見積りの作成"],
+    ["11","納品スケジュールの確定"],
   ]},
 ];
 const STEP_LIST = [];   // {no,phaseKey,phaseName,name,owner,days,deliv,gate}
 PHASES.forEach(p=>p.steps.forEach(s=>STEP_LIST.push({no:s[0],phaseKey:p.key,phaseName:p.name,name:s[1],owner:s[2],days:s[3],deliv:s[4],gate:!!s[5]})));
-const TOTAL = STEP_LIST.length;   // 29
+const TOTAL = STEP_LIST.length;   // 11
 const STATUSES = ["未着手","進行中","完了","保留"];
 const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","保留":"st-hold","未着手":""};
 
@@ -325,7 +299,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
 
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:""});
-  return Object.assign({id:uid(),name:"",client:"",owner:"",start:"",launch:"",price:"",note:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",owner:"",client:"",retail:"",unit:"",markup:"",spec:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+((p.steps[s.no]||{}).status==="完了"?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -338,12 +312,9 @@ function currentPhase(p){
 /* ======================= 状態・保存 ======================= */
 const LS_KEY="shinshohin-donyu-v1";
 function seedState(){
-  const ex=newProduct({name:"減塩和風ドレッシング（200ml）",client:"○○スーパー（PB）",owner:"開発課 田中",start:"2026-05-01",launch:"2026-11-01",price:"本体128円 / 納入単価92円",note:"記入例。不要なら削除してください。"});
-  const done={"01":"2026-05-07","02":"2026-05-20","03":"2026-05-29","G1":"2026-06-02","04":"2026-06-12","05":"2026-07-03","06":"2026-07-08","07":"2026-07-10","G2":"2026-07-14","08":"2026-07-17","09":"2026-07-21","10":"2026-07-22","G3":"2026-07-24"};
-  Object.entries(done).forEach(([no,d])=>{ ex.steps[no].status="完了"; ex.steps[no].done=d; });
-  ex.steps["11"]={status:"進行中",start:"2026-07-24",done:"",note:"保存試験中。加速試験で暫定4か月。本試験は9月末完了予定。"};
-  ex.steps["12"]={status:"進行中",start:"2026-07-22",done:"",note:"外部機関へ分析依頼済み。8月上旬に結果予定。"};
-  ex.steps["13"]={status:"未着手",start:"",done:"",note:"包材の版下は表示確定後に着手。"};
+  const ex=newProduct({name:"サンプル商品（削除できます）",owner:"営業 田中",client:"○○スーパー",retail:"128",unit:"92",markup:"28%",spec:"200ml × 20本",start:"2026-05-01",note:"記入例です。不要なら「削除」で消してください。"});
+  ex.steps["01"]={status:"完了",start:"",done:"2026-05-07",note:""};
+  ex.steps["02"]={status:"進行中",start:"2026-05-10",done:"",note:"試作中"};
   return {version:1, products:[ex]};
 }
 function load(){
@@ -408,14 +379,14 @@ function render(){
   // KPI
   const ps=state.products;
   const avg = ps.length? Math.round(ps.reduce((a,p)=>a+progress(p),0)/ps.length):0;
-  const launched = ps.filter(p=>p.steps["24"] && p.steps["24"].status==="完了").length;
-  const proposing = ps.filter(p=>{const c=currentPhase(p); return c.indexOf("PHASE 6")===0;}).length;
-  const dev = ps.filter(p=>{const c=currentPhase(p); return ["PHASE 1","PHASE 2","PHASE 3","PHASE 4"].some(x=>c.indexOf(x)===0);}).length;
+  const doneAll = ps.filter(p=>progress(p)===100).length;
+  const inprog = ps.filter(p=>{const g=progress(p); return g>0 && g<100;}).length;
+  const notStarted = ps.filter(p=>progress(p)===0).length;
   const kpi=[
     ["--accent",ps.length,"登録商品"],
-    ["--warn",dev,"開発・検証中"],
-    ["--accent",proposing,"提案・商談中"],
-    ["--ok",launched,"発売済み"],
+    ["--faint",notStarted,"未着手"],
+    ["--warn",inprog,"進行中"],
+    ["--ok",doneAll,"完了"],
     ["--accent",avg+"%","平均進捗"],
   ];
   $("#kpis").innerHTML=kpi.map(k=>`<div class="kpi" style="--k:var(${k[0]})"><div class="n">${k[1]}</div><div class="l">${k[2]}</div></div>`).join("");
@@ -432,7 +403,7 @@ function render(){
   if(filter.sort==="recent") list.sort((a,b)=>b.createdAt-a.createdAt);
   else if(filter.sort==="progress") list.sort((a,b)=>progress(b)-progress(a));
   else if(filter.sort==="progress_asc") list.sort((a,b)=>progress(a)-progress(b));
-  else if(filter.sort==="launch") list.sort((a,b)=>(a.launch||"9999").localeCompare(b.launch||"9999"));
+  else if(filter.sort==="start") list.sort((a,b)=>(a.start||"9999").localeCompare(b.start||"9999"));
 
   const view=$("#view");
   if(!list.length){
@@ -450,7 +421,7 @@ function card(p){
     <div class="pc-top">
       <div style="min-width:0">
         <h3>${esc(p.name||"（商品名未設定）")}</h3>
-        <div class="pmeta">${p.client?`<span>${esc(p.client)}</span>`:""}${p.owner?`<span>担当 ${esc(p.owner)}</span>`:""}${p.launch?`<span>発売目標 ${esc(p.launch)}</span>`:""}</div>
+        <div class="pmeta">${p.client?`<span>${esc(p.client)}</span>`:""}${p.owner?`<span>営業 ${esc(p.owner)}</span>`:""}${p.start?`<span>販売開始 ${esc(p.start)}</span>`:""}</div>
       </div>
       <span class="phasetag${full?" done":""}">${esc(cp)}</span>
     </div>
@@ -495,11 +466,13 @@ function openDetail(id){
     f.appendChild(inp); return f;
   };
   info.appendChild(F("商品名","name","text"));
-  info.appendChild(F("得意先","client","text"));
-  info.appendChild(F("商品担当","owner","text"));
-  info.appendChild(F("想定売価 / 納入単価","price","text"));
-  info.appendChild(F("開始日","start","date"));
-  info.appendChild(F("目標発売日","launch","date"));
+  info.appendChild(F("営業担当","owner","text"));
+  info.appendChild(F("想定販売先","client","text"));
+  info.appendChild(F("希望小売価格","retail","text"));
+  info.appendChild(F("希望納入単価","unit","text"));
+  info.appendChild(F("値入率","markup","text"));
+  info.appendChild(F("規格","spec","text"));
+  info.appendChild(F("販売開始日","start","date"));
   info.appendChild(F("メモ","note","ta",true));
   body.appendChild(info);
 
@@ -552,8 +525,10 @@ function stepRow(p,s){
   const [no,name,owner,days,deliv,gate]=s;
   const st=p.steps[no]||(p.steps[no]={status:"未着手",start:"",done:"",note:""});
   const row=el("div","step"+(gate?" gate":""));
-  row.innerHTML=`<div class="sno"><span>${gate?no:no}</span></div>
-    <div><div class="sname">${gate?"【ゲート】":""}${esc(name)}</div><div class="ssub">${esc(owner)}・目安 ${esc(days)}｜${esc(deliv)}</div></div>`;
+  const parts=[]; if(owner)parts.push(owner); if(days)parts.push("目安 "+days); if(deliv)parts.push(deliv);
+  const subHtml=parts.length?`<div class="ssub">${esc(parts.join("｜"))}</div>`:"";
+  row.innerHTML=`<div class="sno"><span>${no}</span></div>
+    <div><div class="sname">${gate?"【ゲート】":""}${esc(name)}</div>${subHtml}</div>`;
   const ctrl=el("div","sctrl");
   const sel=el("select","sstat "+(STAT_CLASS[st.status]||""));
   sel.innerHTML=STATUSES.map(v=>`<option${v===st.status?" selected":""}>${v}</option>`).join("");
