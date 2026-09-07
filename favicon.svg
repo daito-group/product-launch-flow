@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="14" fill="#0e5c63"/>
-  <text x="32" y="34" font-family="'Yu Gothic','Hiragino Sans','Noto Sans JP','Meiryo',sans-serif" font-size="42" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="central">導</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="新商品導入フロー">
+  <rect width="100" height="100" rx="22" fill="#ffffff"/>
+  <g>
+    <g transform="rotate(0 50 50) translate(50 12) rotate(-18)"><path d="M-12 0A12 12 0 0 1 12 0Z" fill="#003c90"/></g>
+    <g transform="rotate(45 50 50) translate(50 13) rotate(14)"><path d="M-9 0A9 9 0 0 1 9 0Z" fill="#f0a800"/></g>
+    <g transform="rotate(90 50 50) translate(50 12) rotate(-10)"><path d="M-12.5 0A12.5 12.5 0 0 1 12.5 0Z" fill="#d80c30"/></g>
+    <g transform="rotate(135 50 50) translate(50 14) rotate(20)"><path d="M-8.5 0A8.5 8.5 0 0 1 8.5 0Z" fill="#0090a8"/></g>
+    <g transform="rotate(180 50 50) translate(50 12) rotate(-16)"><path d="M-12 0A12 12 0 0 1 12 0Z" fill="#d80c30"/></g>
+    <g transform="rotate(225 50 50) translate(50 13.5) rotate(12)"><path d="M-9 0A9 9 0 0 1 9 0Z" fill="#003c90"/></g>
+    <g transform="rotate(270 50 50) translate(50 12) rotate(-12)"><path d="M-12.5 0A12.5 12.5 0 0 1 12.5 0Z" fill="#0090a8"/></g>
+    <g transform="rotate(315 50 50) translate(50 14) rotate(18)"><path d="M-8.5 0A8.5 8.5 0 0 1 8.5 0Z" fill="#f0a800"/></g>
+  </g>
+  <circle cx="50" cy="50" r="30" fill="#0e5c63"/>
+  <text x="50" y="51" font-family="'Yu Gothic','Hiragino Sans','Noto Sans JP','Meiryo',sans-serif" font-size="38" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="central">導</text>
 </svg>
