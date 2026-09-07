@@ -309,7 +309,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
 
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
-  return Object.assign({id:uid(),name:"",owner:"",client:"",retail:"",unit:"",markup:"",spec:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+((p.steps[s.no]||{}).status==="完了"?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -483,8 +483,10 @@ function openDetail(id){
   info.appendChild(F("想定販売先","client","text"));
   info.appendChild(F("希望小売価格","retail","text",false,"円"));
   info.appendChild(F("希望納入単価","unit","text",false,"円"));
-  info.appendChild(F("値入率","markup","text",false,"％"));
+  info.appendChild(F("目標製造原価","cost","text",false,"円"));
   info.appendChild(F("規格","spec","text"));
+  info.appendChild(F("値入率","markup","text",false,"％"));
+  info.appendChild(F("企画開始日","planStart","date"));
   info.appendChild(F("販売開始日","start","date"));
   info.appendChild(F("メモ","note","ta",true));
   body.appendChild(info);
