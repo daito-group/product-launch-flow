@@ -61,6 +61,11 @@
   .syncpill.err{color:var(--bad);border-color:var(--bad)} .syncpill.err::before{background:var(--bad)}
 
   .wrap{max-width:1180px;margin:0 auto;padding:18px}
+  /* 未接続の警告 */
+  .offline{display:flex;gap:10px;align-items:flex-start;background:var(--warn-bg);border:1px solid var(--warn);color:var(--ink);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;font-size:13px;line-height:1.65}
+  .offline[hidden]{display:none}
+  .offline .icon{color:var(--warn);flex:none;width:18px;height:18px;margin-top:2px}
+  .offline b{color:var(--warn)}
 
   /* KPI */
   .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
@@ -259,6 +264,10 @@
 </header>
 
 <div class="wrap">
+  <div class="offline" id="offlineBanner" hidden>
+    <svg class="icon" viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+    <div><b>この端末は共有に接続されていません。</b>入力した内容は他の人に表示されず、この端末にだけ保存されます。管理者から届いた共有リンクを開くか、右上「管理」→「共有の設定」から接続してください。</div>
+  </div>
   <div class="kpis" id="kpis"></div>
   <div class="toolbar">
     <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="商品名・販売先・営業で検索…"></div>
@@ -284,8 +293,8 @@
       <button class="btn primary" id="s_connect">接続して読み込む</button>
     </div>
     <div class="mdiv"></div>
-    <p class="mlead"><b>管理者の方へ（初回セットアップ）：</b> このブラウザの現在のデータをサーバーへ最初に保存します。以後は全員の編集が自動で同期されます。</p>
-    <button class="btn warn-btn" id="s_push">このブラウザのデータをサーバーへ保存（初回アップロード）</button>
+    <p class="mlead"><b>この端末だけに入力した商品がある場合：</b> 下のボタンで、共有データにまだ無い商品を追加できます。共有データ側の内容が消えたり上書きされたりすることはありません。</p>
+    <button class="btn warn-btn" id="s_push">この端末の商品を共有データに追加（未共有分のみ）</button>
     <div class="mdiv"></div>
     <button class="btn ghost" id="s_disconnect" style="width:100%;justify-content:center">共有を解除（この端末のみで使う）</button>
   </div>
@@ -373,49 +382,186 @@ let state = load();
 function persist(){
   try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
   catch(e){ toast("保存容量オーバー：「書き出し」でバックアップしてください"); return false; }
-  if(conn.url && conn.token && !syncing) schedulePush();
+  if(isConnected()){ if(syncing) pendingPush=true; else schedulePush(); }
   return true;
 }
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
 
 /* ======================= 共有（Googleスプレッドシート）同期 ======================= */
-const CONN_KEY="shinshohin-conn";
-let conn=loadConn(), baseVersion=0, syncing=false, pushTimer=null;
+/* サーバーと最後に一致した内容（base）を記録し、「この端末で変えた所」だけを最新のサーバー内容に重ねる（3方向マージ）。
+   ・同時に別々の人が編集しても互いの入力は消えない（同じ欄を同時に変えた場合のみ、後から保存した方が残る）
+   ・表示中の商品データはその場で書き換えるので、開いたままの詳細画面の入力も保存先を見失わない
+   ・画面を開いている間は15秒ごとに最新を自動取得する */
+const CONN_KEY="shinshohin-conn", BASE_KEY="shinshohin-base", BACKUP_KEY="shinshohin-backup";
+let conn=loadConn(), baseVersion=0, baseState=null, syncing=false, pushTimer=null, pendingPush=false, pendingRender=false;
 function loadConn(){ try{ return JSON.parse(localStorage.getItem(CONN_KEY))||{url:"",token:""}; }catch(e){ return {url:"",token:""}; } }
 function saveConn(){ try{ localStorage.setItem(CONN_KEY, JSON.stringify(conn)); }catch(e){} }
 const isConnected=()=>!!(conn.url&&conn.token);
-async function serverCall(payload){
-  const res=await fetch(conn.url,{method:"POST",body:JSON.stringify(Object.assign({token:conn.token},payload))});
+const clone=o=>JSON.parse(JSON.stringify(o));
+function canon(o){ if(Array.isArray(o)) return "["+o.map(canon).join(",")+"]"; if(o&&typeof o==="object") return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}"; return JSON.stringify(o===undefined?null:o); }
+const same=(a,b)=>canon(a)===canon(b);
+const PDEF={name:"",stage:"構想中",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:""};
+const SDEF={status:"未着手",start:"",done:"",note:"",owner:""};
+const bval=(o,k,def)=> (o && k in o) ? o[k] : (def && k in def ? def[k] : undefined);
+/* 既定値のままの欄・工程を除いた「中身」（画面を開いただけで生じる差分を変更扱いしないため） */
+function norm(p){
+  const o={};
+  for(const k of Object.keys(p)){ if(k==="steps") continue; if(k in PDEF && same(p[k],PDEF[k])) continue; o[k]=p[k]; }
+  const s={};
+  for(const no of Object.keys(p.steps||{})){ const st=p.steps[no]||{}, t={}; for(const f of Object.keys(st)){ if(f in SDEF && same(st[f],SDEF[f])) continue; t[f]=st[f]; } if(Object.keys(t).length) s[no]=t; }
+  o.steps=s; return o;
+}
+const changedP=(a,b)=>!same(norm(a),norm(b));
+const stateSig=st=>canon(((st&&st.products)||[]).map(norm).sort((a,b)=>String(a.id)<String(b.id)?-1:1));
+function loadBase(){ try{ const b=JSON.parse(localStorage.getItem(BASE_KEY)); if(b&&b.url===conn.url&&b.state&&Array.isArray(b.state.products)){ baseState=b.state; baseVersion=b.version||0; } }catch(e){} }
+function setBase(st,ver){ baseState=clone(st); baseVersion=ver||0; try{ localStorage.setItem(BASE_KEY, JSON.stringify({url:conn.url,version:baseVersion,state:baseState})); }catch(e){} }
+function clearBase(){ baseState=null; baseVersion=0; try{ localStorage.removeItem(BASE_KEY); }catch(e){} }
+function parseRemote(data){ if(!data) return null; try{ const p=JSON.parse(data); return (p&&Array.isArray(p.products))? p : null; }catch(e){ return null; } }
+
+function mergeProduct(b,l,r){
+  const m=Object.assign({}, r);
+  for(const k of Object.keys(l)){
+    if(k==="steps") continue;
+    if(b){ if(!same(l[k], bval(b,k,PDEF))) m[k]=l[k]; }
+    else if((r[k]===undefined||r[k]==="") && l[k]!==undefined && l[k]!=="") m[k]=l[k];
+  }
+  const bs=(b&&b.steps)||{}, ls=l.steps||{}, rs=r.steps||{}, steps={};
+  for(const no of new Set([...Object.keys(rs),...Object.keys(ls)])){
+    const ll=ls[no], rr=rs[no];
+    if(!ll){ steps[no]=Object.assign({}, rr); continue; }
+    if(!rr){ steps[no]=Object.assign({}, ll); continue; }
+    const bb=b ? (bs[no]||SDEF) : null, st=Object.assign({}, rr);
+    for(const f of Object.keys(ll)){
+      if(bb){ if(!same(ll[f], bval(bb,f,SDEF))) st[f]=ll[f]; }
+      else if((rr[f]===undefined||rr[f]==="") && ll[f]!==undefined && ll[f]!=="") st[f]=ll[f];
+    }
+    steps[no]=st;
+  }
+  m.steps=steps;
+  return m;
+}
+function mergeStates(base, local, remote){
+  const B=new Map(((base&&base.products)||[]).map(p=>[p.id,p]));
+  const L=new Map(((local&&local.products)||[]).map(p=>[p.id,p]));
+  const R=new Map(((remote&&remote.products)||[]).map(p=>[p.id,p]));
+  const out=[];
+  for(const id of new Set([...R.keys(),...L.keys()])){
+    const b=B.get(id), l=L.get(id), r=R.get(id);
+    if(l&&r) out.push(mergeProduct(b,l,r));
+    else if(l){ if(!b || changedP(b,l)) out.push(clone(l)); }   // この端末で追加／他の人が削除したがこの端末で編集していた → 残す
+    else if(r){ if(!b || changedP(b,r)) out.push(clone(r)); }   // 他の人が追加／この端末で削除したが他の人が編集していた → 残す
+  }
+  return Object.assign({}, remote, {products:out});
+}
+/* 画面が参照している商品オブジェクトは差し替えず、その場で中身を更新する */
+function applyMerged(ns){
+  const cur=new Map(state.products.map(p=>[p.id,p]));
+  const next=ns.products.map(np=>{
+    const p=cur.get(np.id);
+    if(!p) return clone(np);
+    for(const k of Object.keys(np)) if(k!=="steps") p[k]=np[k];
+    const ps=p.steps||(p.steps={}), nps=np.steps||{};
+    for(const no of Object.keys(nps)){ if(ps[no]) Object.assign(ps[no], nps[no]); else ps[no]=Object.assign({}, nps[no]); }
+    return p;
+  });
+  state.products.length=0; next.forEach(p=>state.products.push(p));
+  for(const k of Object.keys(ns)) if(k!=="products") state[k]=ns[k];
+}
+
+async function serverCall(payload, keepalive){
+  const res=await fetch(conn.url,{method:"POST",body:JSON.stringify(Object.assign({token:conn.token},payload)),keepalive:!!keepalive});
   const txt=await res.text(); let j; try{ j=JSON.parse(txt); }catch(e){ throw new Error("応答が不正です（URLを確認してください）"); }
   return j;
 }
 function setPill(kind,text){ const p=$("#syncPill"); if(!p)return; p.className="syncpill"+(kind?(" "+kind):""); p.textContent=text; }
-function refreshPill(){ if(!isConnected()){ setPill("","未接続（この端末のみ）"); return; } setPill("on","共有中"); }
+function refreshPill(){ const b=$("#offlineBanner"); if(b) b.hidden=isConnected(); if(!isConnected()){ setPill("","未接続（この端末のみ）"); return; } setPill("on","共有中"); }
+
+/* 入力中の欄を壊さないよう、入力中は再描画を後回しにする */
+function isEditing(){ const a=document.activeElement; return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && (a.closest("#view")||a.closest("#drawer"))); }
+function safeRender(){
+  if(isEditing()){ pendingRender=true; return; }
+  pendingRender=false;
+  render();
+  if(openId && $("#drawer").classList.contains("show")){
+    if(!state.products.some(x=>x.id===openId)){ closeDetail(); toast("開いていた商品は、他の人によって削除されました"); return; }
+    const b=$("#drawer .dbody"), top=b?b.scrollTop:0;
+    openDetail(openId);
+    const nb=$("#drawer .dbody"); if(nb) nb.scrollTop=top;
+  }
+}
+function flushPending(){ if(pendingPush){ pendingPush=false; schedulePush(); } if(pendingRender) safeRender(); }
+const waitIdle=async()=>{ while(syncing) await new Promise(r=>setTimeout(r,150)); };
+
 async function loadFromServer(silent){
-  if(!isConnected()) return false;
-  syncing=true; setPill("busy","読み込み中…");
+  if(!isConnected()||syncing) return false;
+  syncing=true; if(!silent) setPill("busy","読み込み中…");
   try{
     const j=await serverCall({action:"load"});
     if(!j.ok) throw new Error(j.error==="token"?"合言葉が違います":("サーバーエラー: "+j.error));
-    if(j.data){ const parsed=JSON.parse(j.data); if(parsed&&Array.isArray(parsed.products)) state=parsed; }
-    baseVersion=j.version||0;
-    localStorage.setItem(LS_KEY, JSON.stringify(state));
-    render(); refreshPill();
+    const remote=parseRemote(j.data), ver=j.version||0;
+    let changed=false;
+    if(!remote){
+      // サーバーがまだ空（初回セットアップ）：この端末の商品を最初のデータとして送る
+      if(!baseState){ setBase({version:1,products:[]}, ver); if(state.products.some(p=>!isSeed(p)&&!isBlank(p))) pendingPush=true; }
+    } else if(!baseState){
+      applyMerged(remote); setBase(remote, ver); changed=true;             // 接続直後：共有データを採用
+    } else if(ver!==baseVersion){
+      const dirty=stateSig(state)!==stateSig(baseState);
+      applyMerged(dirty? mergeStates(baseState, state, remote) : remote);  // 未送信の変更があれば最新に重ねる
+      setBase(remote, ver); changed=true;
+      if(dirty) pendingPush=true;
+    }
+    saveLocal();
+    if(changed) safeRender();
+    refreshPill();
     if(!silent) toast("最新データを読み込みました");
     return true;
   }catch(e){ setPill("err","同期エラー"); if(!silent) toast("読み込み失敗："+e.message); return false; }
-  finally{ syncing=false; }
+  finally{ syncing=false; flushPending(); }
 }
-function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(pushToServer,1200); }
-async function pushToServer(){
+function schedulePush(){ clearTimeout(pushTimer); pushTimer=setTimeout(()=>{ pushTimer=null; pushToServer(); },1200); }
+function retryLater(){ setTimeout(()=>{ if(isConnected()) schedulePush(); },10000); }
+async function pushToServer(keepalive){
   if(!isConnected()) return;
-  setPill("busy","保存中…");
+  if(syncing){ pendingPush=true; return; }
+  if(!baseState){ pendingPush=true; loadFromServer(true); return; }      // 先に共有データを取得してから送る
+  if(stateSig(state)===stateSig(baseState)){ refreshPill(); return; }    // 送る変更なし
+  syncing=true; setPill("busy","保存中…");
   try{
-    const j=await serverCall({action:"save",baseVersion,data:JSON.stringify(state)});
-    if(j.ok){ baseVersion=j.version; refreshPill(); }
-    else if(j.error==="conflict"){ setPill("err","要更新"); toast("他の人が先に保存しました。バッジまたは『共有』→『接続して読み込む』で最新を取得してください（この端末の変更は上書きしていません）"); }
-    else if(j.error==="token"){ setPill("err","合言葉エラー"); }
-    else setPill("err","保存エラー");
-  }catch(e){ setPill("err","保存エラー"); }
+    for(let i=0;i<5;i++){
+      const snap=clone(state);
+      const j=await serverCall({action:"save",baseVersion,data:JSON.stringify(snap)}, keepalive);
+      if(j.ok){ setBase(snap, j.version); refreshPill(); return; }
+      if(j.error==="conflict"){
+        // 他の人が先に保存していた → 最新を取り込み、この端末の変更を重ねて再送（どちらの入力も消さない）
+        const r=await serverCall({action:"load"});
+        if(!r.ok) throw new Error(r.error);
+        const remote=parseRemote(r.data)||{version:1,products:[]};
+        applyMerged(mergeStates(baseState, state, remote));
+        setBase(remote, r.version||0); saveLocal(); pendingRender=true;
+        continue;
+      }
+      if(j.error==="token"){ setPill("err","合言葉エラー"); return; }
+      throw new Error(j.error||"save");
+    }
+    setPill("err","保存エラー（自動で再試行します）"); retryLater();
+  }catch(e){ setPill("err","保存エラー（自動で再試行します）"); retryLater(); }
+  finally{ syncing=false; flushPending(); }
+}
+
+/* この端末だけに保存されている商品を共有データへ追加（共有データ側の内容は消さない） */
+const SEED_NAMES=["サンプル商品（削除できます）","減塩和風ドレッシング（200ml）","（例）減塩和風ドレッシング（200ml）"];
+const isSeed=p=>SEED_NAMES.includes(p.name||"");
+const isBlank=p=>!p.name && !["owner","client","retail","unit","cost","spec","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
+function localOnly(snap){ const inRemote=new Set(((baseState&&baseState.products)||[]).map(p=>p.id)); return ((snap&&snap.products)||[]).filter(p=>!inRemote.has(p.id)&&!isSeed(p)&&!isBlank(p)); }
+function addLocalOnly(snap){ const extra=localOnly(snap), inState=new Set(state.products.map(p=>p.id)); extra.forEach(p=>{ if(!inState.has(p.id)) state.products.push(clone(p)); }); return extra.length; }
+function offerLocalUpload(snap){
+  const extra=localOnly(snap);
+  if(!extra.length) return;
+  try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(snap)); }catch(e){}
+  const names=extra.map(p=>"・"+(p.name||"（商品名未設定）")).join("\n");
+  if(!confirm("この端末だけに保存されていた商品が"+extra.length+"件あります。\n"+names+"\n\n共有データに追加して、全員が見られるようにしますか？")) return;
+  addLocalOnly(snap); saveLocal(); safeRender(); schedulePush(); toast(extra.length+"件を共有データに追加しました");
 }
 function openSync(){ $("#s_url").value=conn.url; $("#s_token").value=conn.token; sStatus("", isConnected()?"現在：共有中":"現在：未接続"); $("#mscrim").classList.add("show"); $("#syncModal").classList.add("show"); }
 function closeSync(){ $("#mscrim").classList.remove("show"); $("#syncModal").classList.remove("show"); }
@@ -680,41 +826,61 @@ $("#s_test").addEventListener("click",async()=>{
 $("#s_connect").addEventListener("click",async()=>{
   const u=$("#s_url").value.trim(),t=$("#s_token").value.trim();
   if(!u||!t){ sStatus("err","URLと合言葉を入力してください"); return; }
-  conn={url:u,token:t}; saveConn(); sStatus("busy","読み込み中…");
+  const wasConnected=isConnected(), snap=clone(state);
+  if(conn.url!==u||conn.token!==t){ conn={url:u,token:t}; saveConn(); clearBase(); }
+  sStatus("busy","読み込み中…");
+  await waitIdle();
   const ok=await loadFromServer(true);
-  if(ok){ sStatus("ok","接続しました。全員のデータを表示しています"); refreshPill(); setTimeout(closeSync,700); }
+  if(ok){ sStatus("ok","接続しました。全員のデータを表示しています"); refreshPill(); setTimeout(closeSync,700); if(!wasConnected) setTimeout(()=>offerLocalUpload(snap),800); }
   else sStatus("err","読み込めませんでした。URLと合言葉を確認してください");
 });
 $("#s_push").addEventListener("click",async()=>{
   const u=$("#s_url").value.trim(),t=$("#s_token").value.trim();
   if(!u||!t){ sStatus("err","URLと合言葉を入力してください"); return; }
-  if(!confirm("このブラウザの現在のデータで、サーバー側を上書きします。よろしいですか？")) return;
-  conn={url:u,token:t}; saveConn(); sStatus("busy","アップロード中…");
-  try{ const cur=await serverCall({action:"load"}); baseVersion=cur.ok?(cur.version||0):0;
-    const j=await serverCall({action:"save",baseVersion,data:JSON.stringify(state)});
-    if(j.ok){ baseVersion=j.version; refreshPill(); sStatus("ok","サーバーへ保存しました。他の人は『接続して読み込む』で表示できます"); }
-    else sStatus("err","保存できませんでした："+j.error);
-  }catch(e){ sStatus("err","保存できません："+e.message); }
+  if(!confirm("この端末に保存されている商品のうち、共有データにまだ無いものを追加します。\n共有データ側の内容が消えたり上書きされたりすることはありません。よろしいですか？")) return;
+  const snap=clone(state);
+  if(conn.url!==u||conn.token!==t){ conn={url:u,token:t}; saveConn(); clearBase(); }
+  sStatus("busy","アップロード中…");
+  await waitIdle();
+  const ok=await loadFromServer(true);
+  if(!ok){ sStatus("err","接続できません。URLと合言葉を確認してください"); return; }
+  const n=addLocalOnly(snap);
+  if(n){ saveLocal(); safeRender(); schedulePush(); sStatus("ok",n+"件の商品を共有データに追加しました"); }
+  else sStatus("ok","追加する商品はありません（この端末の商品はすべて共有済みです）");
+  refreshPill();
 });
-$("#s_disconnect").addEventListener("click",()=>{ conn={url:"",token:""}; saveConn(); baseVersion=0; refreshPill(); sStatus("","共有を解除しました（この端末のデータのみ表示します）"); });
+$("#s_disconnect").addEventListener("click",()=>{ conn={url:"",token:""}; saveConn(); clearBase(); refreshPill(); sStatus("","共有を解除しました（この端末のデータのみ表示します）"); });
 window.addEventListener("focus",()=>{ if(isConnected()&&!syncing) loadFromServer(true); });
+/* 他の人の変更を自動で取り込む（画面を開いている間は15秒ごと） */
+setInterval(()=>{ if(isConnected() && document.visibilityState==="visible" && !syncing) loadFromServer(true); }, 15000);
+/* 画面を閉じる・切り替える時は、送信待ちの変更をすぐ送る */
+function flushNow(){ if(pushTimer){ clearTimeout(pushTimer); pushTimer=null; pushToServer(true); } }
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden") flushNow(); else if(isConnected()&&!syncing) loadFromServer(true); });
+window.addEventListener("pagehide", flushNow);
+document.addEventListener("focusout",()=>setTimeout(()=>{ if(pendingRender&&!isEditing()) safeRender(); },0));
 
 /* 起動 */
 try{ const th=localStorage.getItem("shinshohin-theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
 /* ワンクリック接続リンク：URLの #s=... に接続情報が入っていれば自動接続し、鍵をアドレスバーから消す */
+let hashJustConnected=false, hashSnap=null;
 (function hashConnect(){
   try{
     const m=location.hash.match(/[#&]s=([^&]+)/);
     if(m){
       let b=m[1].replace(/-/g,"+").replace(/_/g,"/"); while(b.length%4) b+="=";
       const obj=JSON.parse(decodeURIComponent(escape(atob(b))));
-      if(obj&&obj.u&&obj.t){ conn={url:obj.u,token:obj.t}; saveConn(); }
+      if(obj&&obj.u&&obj.t){
+        if(!isConnected()){ hashJustConnected=true; hashSnap=clone(state); }
+        if(conn.url!==obj.u||conn.token!==obj.t){ conn={url:obj.u,token:obj.t}; saveConn(); clearBase(); }
+      }
     }
   }catch(e){}
   if(location.hash) history.replaceState(null,"",location.pathname+location.search);
 })();
+loadBase();
 render(); refreshPill();
-if(isConnected()) loadFromServer(true); else persist();
+if(isConnected()) loadFromServer(true).then(ok=>{ if(ok&&hashJustConnected) offerLocalUpload(hashSnap); });
+else persist();
 </script>
 </body>
 </html>
