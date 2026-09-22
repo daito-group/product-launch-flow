@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>新商品導入 記入用紙（A4・1商品1枚）</title>
+<style>
+  @page { size: A4 portrait; margin: 10mm; }
+  :root{ --ink:#111; --line:#8a8a8a; --line2:#c9c9c9; --band:#eceeed; --accent:#0e5c63; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; background:#f0f1f0; }
+  body{ font-family:"Yu Gothic","Hiragino Sans","Noto Sans JP","Meiryo",sans-serif; color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  /* 画面ではA4用紙を模して表示、印刷時は1枚に収める */
+  .sheet{ width:190mm; min-height:277mm; margin:12mm auto; background:#fff; box-shadow:0 2px 14px rgba(0,0,0,.18); }
+  .toolbar{ max-width:190mm; margin:10mm auto -8mm; display:flex; gap:8px; align-items:center; }
+  .toolbar button{ font:inherit; font-size:13px; font-weight:700; padding:8px 16px; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:6px; cursor:pointer; }
+  .toolbar span{ font-size:12px; color:#555; }
+
+  h1{ font-size:15pt; margin:0; letter-spacing:.04em; }
+  .head{ display:flex; align-items:flex-end; gap:8mm; border-bottom:1.6pt solid var(--ink); padding-bottom:1.8mm; }
+  .head .sub{ font-size:8pt; color:#555; margin-top:.8mm; }
+  .head .meta{ margin-left:auto; font-size:9pt; white-space:nowrap; }
+  .head .meta u{ display:inline-block; min-width:24mm; border-bottom:.6pt solid var(--line); text-decoration:none; }
+
+  .status{ display:flex; align-items:center; gap:6mm; margin:2.5mm 0 3mm; font-size:10pt; font-weight:700; }
+  .status .lbl{ font-size:8.5pt; color:#555; font-weight:700; letter-spacing:.06em; }
+  .cb{ display:inline-flex; align-items:center; gap:1.6mm; font-weight:700; }
+  .cb i{ width:4.2mm; height:4.2mm; border:1pt solid var(--ink); display:inline-block; }
+
+  table{ width:100%; border-collapse:collapse; }
+  .info td{ border:.6pt solid var(--line2); padding:0; height:9.5mm; }
+  .info .k{ width:26mm; background:var(--band); font-size:8.5pt; font-weight:700; padding:0 2mm; white-space:nowrap; }
+  .info .v{ padding:0 2mm; font-size:10pt; }
+  .info .v.unit{ text-align:right; }
+  .info .v .u{ font-size:8.5pt; color:#555; margin-left:1mm; }
+  .info .memo .k, .info .memo .v{ height:17mm; }
+
+  .sec{ font-size:9pt; font-weight:800; letter-spacing:.06em; margin:3.5mm 0 1.2mm; color:var(--accent); }
+
+  .steps{ table-layout:fixed; }
+  .steps th{ background:var(--band); border:.6pt solid var(--line); font-size:8pt; font-weight:700; height:6.6mm; letter-spacing:.04em; }
+  .steps td{ border:.6pt solid var(--line2); height:8mm; font-size:9.5pt; padding:0 1.5mm; }
+  .steps td.no{ text-align:center; font-size:8.5pt; color:#444; font-variant-numeric:tabular-nums; }
+  .steps td.nm{ font-weight:600; }
+  .steps td.st{ text-align:center; font-size:8.5pt; color:#333; letter-spacing:.08em; white-space:nowrap; }
+  .steps tr.band td{ background:var(--band); border:.6pt solid var(--line); font-size:8.5pt; font-weight:800; height:5.8mm; color:var(--accent); letter-spacing:.06em; }
+  .steps tr.band .bandn{ font-weight:600; color:#555; font-size:7.5pt; }
+
+  .foot{ display:flex; gap:5mm; margin-top:2mm; font-size:7.5pt; color:#555; }
+  .foot .note{ flex:1; }
+
+  @media print{
+    html,body{ background:#fff; }
+    .toolbar{ display:none; }
+    .sheet{ width:auto; min-height:auto; margin:0; box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="window.print()">この用紙を印刷</button>
+  <span>A4・1商品1枚／印刷ダイアログで「用紙:A4」「余白:既定」を確認してください</span>
+</div>
+
+<div class="sheet">
+  <div class="head">
+    <div>
+      <h1>新商品導入 記入用紙</h1>
+      <div class="sub">1商品につき1枚。記入後はアプリ「新商品導入フロー」に入力してください。</div>
+    </div>
+    <div class="meta">記入日 <u></u>　記入者 <u></u></div>
+  </div>
+
+  <div class="status">
+    <span class="lbl">商品ステータス</span>
+    <label class="cb"><i></i>構想中</label>
+    <label class="cb"><i></i>提案中</label>
+    <label class="cb"><i></i>採用</label>
+    <label class="cb"><i></i>不採用</label>
+  </div>
+
+  <table class="info">
+    <tr>
+      <td class="k">商品名</td><td class="v" colspan="3"></td>
+      <td class="k">営業担当</td><td class="v"></td>
+    </tr>
+    <tr>
+      <td class="k">想定販売先</td><td class="v" colspan="3"></td>
+      <td class="k">希望小売価格</td><td class="v unit"><span class="u">円</span></td>
+    </tr>
+    <tr>
+      <td class="k">希望納入単価</td><td class="v unit"><span class="u">円</span></td>
+      <td class="k">目標製造原価</td><td class="v unit"><span class="u">円</span></td>
+      <td class="k">値入率</td><td class="v unit"><span class="u">％</span></td>
+    </tr>
+    <tr>
+      <td class="k">規格</td><td class="v" colspan="5"></td>
+    </tr>
+    <tr>
+      <td class="k">企画開始日</td><td class="v" colspan="2"></td>
+      <td class="k">販売開始日</td><td class="v" colspan="2"></td>
+    </tr>
+    <tr class="memo">
+      <td class="k">最新状況</td><td class="v" colspan="5"></td>
+    </tr>
+  </table>
+
+  <div class="sec">工程チェック（全15工程）　※「状況」は該当に○</div>
+
+  <table class="steps">
+    <colgroup>
+      <col style="width:9mm"><col style="width:48mm"><col style="width:24mm">
+      <col style="width:22mm"><col style="width:22mm"><col style="width:24mm"><col>
+    </colgroup>
+    <thead>
+      <tr><th>No</th><th>工程</th><th>担当</th><th>依頼日</th><th>〆切</th><th>状況</th><th>備考</th></tr>
+    </thead>
+    <tbody>
+      <tr class="band"><td colspan="7">PHASE 1　<span class="bandn">（7工程）</span></td></tr>
+      <tr>
+        <td class="no">01</td>
+        <td class="nm">商品イメージの共有</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">02</td>
+        <td class="nm">商品開発</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">03</td>
+        <td class="nm">社内試食</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">04</td>
+        <td class="nm">レシピ共有</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">05</td>
+        <td class="nm">原料選定</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">06</td>
+        <td class="nm">仮製造工程表の作成</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">07</td>
+        <td class="nm">仮見積りの作成</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr class="band"><td colspan="7">PHASE 2　<span class="bandn">（5工程）</span></td></tr>
+      <tr>
+        <td class="no">08</td>
+        <td class="nm">カルテ作成</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">09</td>
+        <td class="nm">倉庫スケジュール作成</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">10</td>
+        <td class="nm">パッケージ作成</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">11</td>
+        <td class="nm">大量生産の試作</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">12</td>
+        <td class="nm">菌検査</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr class="band"><td colspan="7">PHASE 3　<span class="bandn">（3工程）</span></td></tr>
+      <tr>
+        <td class="no">13</td>
+        <td class="nm">従業員試食</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">14</td>
+        <td class="nm">最終見積りの作成</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="no">15</td>
+        <td class="nm">納品スケジュールの確定</td>
+        <td></td><td></td><td></td>
+        <td class="st">未・進・完</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="foot">
+    <div class="note">状況：未＝未着手／進＝進行中／完＝完了　｜　値入率＝（希望納入単価 − 目標製造原価）÷ 希望納入単価 × 100（アプリでは自動計算）</div>
+    <div>daito-group.github.io/product-launch-flow/</div>
+  </div>
+</div>
+
+</body>
+</html>
