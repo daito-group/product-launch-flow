@@ -218,9 +218,9 @@
   .menu{position:absolute;top:calc(100% + 6px);right:0;min-width:210px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lg);padding:6px;display:none;flex-direction:column;gap:2px;z-index:50}
   .menu.show{display:flex}
   .menu .mlabel{font-size:10.5px;color:var(--faint);font-weight:700;padding:5px 11px 3px;letter-spacing:.04em}
-  .menu button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;border:0;padding:9px 11px;border-radius:8px;font-weight:600;font-size:13px;color:var(--ink-soft);cursor:pointer}
-  .menu button:hover{background:var(--surface-2);color:var(--ink)}
-  .menu button .icon{color:var(--muted);flex:none}
+  .menu button,.menu a{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:transparent;border:0;padding:9px 11px;border-radius:8px;font-weight:600;font-size:13px;color:var(--ink-soft);cursor:pointer;text-decoration:none}
+  .menu button:hover,.menu a:hover{background:var(--surface-2);color:var(--ink)}
+  .menu button .icon,.menu a .icon{color:var(--muted);flex:none}
   .menu .sep{height:1px;background:var(--line);margin:4px 6px}
 
   /* 工程フロー オーバーレイ */
@@ -251,6 +251,9 @@
       <div class="menu-wrap">
         <button class="btn ghost" id="btnAdmin" title="データ管理（書き出し・読み込み・共有）" aria-haspopup="true" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>管理</button>
         <div class="menu" id="adminMenu" role="menu">
+          <div class="mlabel">用紙</div>
+          <a id="btnForm" href="form.html" target="_blank" rel="noopener" role="menuitem" title="A4の記入用紙を別タブで開いて印刷"><svg class="icon" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>記入用紙を印刷（A4）</a>
+          <div class="sep"></div>
           <div class="mlabel">データ管理（管理者用）</div>
           <button id="btnExport" role="menuitem"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>書き出し（バックアップ）</button>
           <button id="btnImport" role="menuitem"><svg class="icon" viewBox="0 0 24 24"><path d="M12 21V9m0 0l-4 4m4-4l4 4M5 3h14"/></svg>読み込み</button>
@@ -808,7 +811,7 @@ $("#flowClose").addEventListener("click",closeFlow);
 /* 管理メニュー（書き出し・読み込み・共有） */
 function closeAdmin(){ $("#adminMenu").classList.remove("show"); $("#btnAdmin").setAttribute("aria-expanded","false"); }
 $("#btnAdmin").addEventListener("click",e=>{ e.stopPropagation(); const open=$("#adminMenu").classList.toggle("show"); $("#btnAdmin").setAttribute("aria-expanded",open?"true":"false"); });
-$("#adminMenu").addEventListener("click",e=>{ if(e.target.closest("button")) closeAdmin(); });
+$("#adminMenu").addEventListener("click",e=>{ if(e.target.closest("button,a")) closeAdmin(); });
 document.addEventListener("click",closeAdmin);
 
 /* 共有モーダル配線 */
