@@ -14,6 +14,7 @@
     --line:#e2e6e3; --line-strong:#cfd5d1;
     --accent:#0e5c63; --accent-ink:#0b4a50; --accent-soft:#dbebec;
     --gate:#8a5a12; --gate-soft:#f4ead6;
+    --sample:#4a4fb8; --sample-bg:#e9eafb;
     --ok:#2f9e57; --ok-bg:#e4f4ea; --warn:#c58a17; --warn-bg:#f8eecf; --bad:#c0392b; --bad-bg:#f7e2df;
     --radius:16px; --radius-sm:10px;
     --shadow:0 1px 2px rgba(20,30,28,.05),0 4px 14px -10px rgba(20,30,28,.22);
@@ -26,6 +27,7 @@
     --line:#2c3432; --line-strong:#3a423f;
     --accent:#4fb3bc; --accent-ink:#6fc9d1; --accent-soft:#123230;
     --gate:#d9a94f; --gate-soft:#2d2611;
+    --sample:#a3a7f2; --sample-bg:#23264a;
     --ok:#4cb877; --ok-bg:#16301f; --warn:#d9a94f; --warn-bg:#2f2711; --bad:#e0685a; --bad-bg:#331a17;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 18px -12px rgba(0,0,0,.6);
     --shadow-lg:0 16px 48px -12px rgba(0,0,0,.7);
@@ -101,6 +103,7 @@
   .stagepill{font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px;border:1px solid;white-space:nowrap}
   .sp-idea{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-soft)}
   .sp-prop{color:var(--warn);border-color:var(--warn);background:var(--warn-bg)}
+  .sp-sample{color:var(--sample);border-color:var(--sample);background:var(--sample-bg)}
   .sp-adopt{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
   .sp-reject{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
   /* 不採用の商品は一覧でグレー表示 */
@@ -112,6 +115,7 @@
   .stagesel{border:1px solid var(--line-strong);background:var(--surface);border-radius:20px;padding:5px 12px;font-weight:800;font-size:12px;cursor:pointer;outline:0}
   .stagesel.stage-idea{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-soft)}
   .stagesel.stage-prop{color:var(--warn);border-color:var(--warn);background:var(--warn-bg)}
+  .stagesel.stage-sample{color:var(--sample);border-color:var(--sample);background:var(--sample-bg)}
   .stagesel.stage-adopt{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
   .stagesel.stage-reject{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
   .phasetag.done{background:var(--ok-bg);color:var(--ok)}
@@ -346,8 +350,8 @@ const TOTAL = STEP_LIST.length;   // 15
 const STATUSES = ["未着手","進行中","完了"];
 const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":""};
 const SETTLED = ["完了"];   // 進捗・フェーズ判定で「処理済み」とみなす
-const STAGES = ["構想中","提案中","採用","不採用"];   // 商品ステータス
-const STAGE_KEY = {"構想中":"idea","提案中":"prop","採用":"adopt","不採用":"reject"};
+const STAGES = ["構想中","提案中","サンプル依頼","採用","不採用"];   // 商品ステータス
+const STAGE_KEY = {"構想中":"idea","提案中":"prop","サンプル依頼":"sample","採用":"adopt","不採用":"reject"};
 
 /* ======================= helpers ======================= */
 const $ = s=>document.querySelector(s);
