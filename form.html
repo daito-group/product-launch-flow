@@ -25,7 +25,9 @@
   .head .meta u{ display:inline-block; min-width:24mm; border-bottom:.6pt solid var(--line); text-decoration:none; }
 
   .status{ display:flex; align-items:center; gap:5.5mm; margin:2.5mm 0 3mm; font-size:10pt; font-weight:700; flex-wrap:wrap; }
-  .status .lbl{ font-size:8.5pt; color:#555; font-weight:700; letter-spacing:.06em; }
+  .status .lbl{ font-size:8.5pt; color:#555; font-weight:700; letter-spacing:.06em; min-width:22mm; }
+  .status.kind{ margin-top:-1.2mm; }
+  .status .hint{ font-size:7.5pt; color:#777; font-weight:600; }
   .cb{ display:inline-flex; align-items:center; gap:1.6mm; font-weight:700; white-space:nowrap; }
   .cb i{ width:4.2mm; height:4.2mm; border:1pt solid var(--ink); display:inline-block; }
 
@@ -81,6 +83,13 @@
     <label class="cb"><i></i>サンプル依頼</label>
     <label class="cb"><i></i>採用</label>
     <label class="cb"><i></i>不採用</label>
+  </div>
+
+  <div class="status kind">
+    <span class="lbl">商品区分</span>
+    <label class="cb"><i></i>自社商品</label>
+    <label class="cb"><i></i>OEM</label>
+    <span class="hint">※どちらか一方にチェック</span>
   </div>
 
   <table class="info">

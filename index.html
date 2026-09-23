@@ -116,6 +116,13 @@
   .stagesel.stage-idea{color:var(--accent-ink);border-color:var(--accent);background:var(--accent-soft)}
   .stagesel.stage-prop{color:var(--warn);border-color:var(--warn);background:var(--warn-bg)}
   .stagesel.stage-sample{color:var(--sample);border-color:var(--sample);background:var(--sample-bg)}
+  /* 商品区分（自社商品／OEM） */
+  .kindsel{border:1px solid var(--line-strong);background:var(--surface);border-radius:20px;padding:5px 12px;font-weight:800;font-size:12px;cursor:pointer;outline:0;color:var(--muted)}
+  .kindsel.kind-own{color:var(--accent-ink);border-color:var(--accent);background:var(--surface)}
+  .kindsel.kind-oem{color:var(--gate);border-color:var(--gate);background:var(--gate-soft)}
+  .kindtag{font-size:10px;font-weight:800;padding:0 6px;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-soft);line-height:1.6}
+  .kindtag.kt-own{color:var(--accent-ink);border-color:var(--accent)}
+  .kindtag.kt-oem{color:var(--gate);border-color:var(--gate);background:var(--gate-soft)}
   .stagesel.stage-adopt{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
   .stagesel.stage-reject{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
   .phasetag.done{background:var(--ok-bg);color:var(--ok)}
@@ -277,7 +284,7 @@
   </div>
   <div class="kpis" id="kpis"></div>
   <div class="toolbar">
-    <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="商品名・販売先・営業で検索…"></div>
+    <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="商品名・販売先・営業・区分で検索…"></div>
     <select class="f" id="fPhase"><option value="">全フェーズ</option></select>
     <select class="f" id="fSort"><option value="recent">新しい順</option><option value="progress">進捗が高い順</option><option value="progress_asc">進捗が低い順</option><option value="start">販売開始日が近い順</option></select>
   </div>
@@ -352,6 +359,8 @@ const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":""};
 const SETTLED = ["完了"];   // 進捗・フェーズ判定で「処理済み」とみなす
 const STAGES = ["構想中","提案中","サンプル依頼","採用","不採用"];   // 商品ステータス
 const STAGE_KEY = {"構想中":"idea","提案中":"prop","サンプル依頼":"sample","採用":"adopt","不採用":"reject"};
+const KINDS = ["自社商品","OEM"];   // 商品区分
+const KIND_KEY = {"自社商品":"own","OEM":"oem"};
 
 /* ======================= helpers ======================= */
 const $ = s=>document.querySelector(s);
@@ -363,7 +372,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
 
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
-  return Object.assign({id:uid(),name:"",stage:"構想中",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+(SETTLED.includes((p.steps[s.no]||{}).status)?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -407,7 +416,7 @@ const isConnected=()=>!!(conn.url&&conn.token);
 const clone=o=>JSON.parse(JSON.stringify(o));
 function canon(o){ if(Array.isArray(o)) return "["+o.map(canon).join(",")+"]"; if(o&&typeof o==="object") return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}"; return JSON.stringify(o===undefined?null:o); }
 const same=(a,b)=>canon(a)===canon(b);
-const PDEF={name:"",stage:"構想中",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:""};
+const PDEF={name:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:""};
 const SDEF={status:"未着手",start:"",done:"",note:"",owner:""};
 const bval=(o,k,def)=> (o && k in o) ? o[k] : (def && k in def ? def[k] : undefined);
 /* 既定値のままの欄・工程を除いた「中身」（画面を開いただけで生じる差分を変更扱いしないため） */
@@ -559,7 +568,7 @@ async function pushToServer(keepalive){
 /* この端末だけに保存されている商品を共有データへ追加（共有データ側の内容は消さない） */
 const SEED_NAMES=["サンプル商品（削除できます）","減塩和風ドレッシング（200ml）","（例）減塩和風ドレッシング（200ml）"];
 const isSeed=p=>SEED_NAMES.includes(p.name||"");
-const isBlank=p=>!p.name && !["owner","client","retail","unit","cost","spec","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
+const isBlank=p=>!p.name && !["kind","owner","client","retail","unit","cost","spec","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
 function localOnly(snap){ const inRemote=new Set(((baseState&&baseState.products)||[]).map(p=>p.id)); return ((snap&&snap.products)||[]).filter(p=>!inRemote.has(p.id)&&!isSeed(p)&&!isBlank(p)); }
 function addLocalOnly(snap){ const extra=localOnly(snap), inState=new Set(state.products.map(p=>p.id)); extra.forEach(p=>{ if(!inState.has(p.id)) state.products.push(clone(p)); }); return extra.length; }
 function offerLocalUpload(snap){
@@ -599,7 +608,7 @@ function render(){
 
   // list
   let list=ps.slice();
-  if(filter.q){ const q=filter.q.toLowerCase(); list=list.filter(p=>((p.name||"")+(p.client||"")+(p.owner||"")).toLowerCase().includes(q)); }
+  if(filter.q){ const q=filter.q.toLowerCase(); list=list.filter(p=>((p.name||"")+(p.client||"")+(p.owner||"")+(p.kind||"")).toLowerCase().includes(q)); }
   if(filter.phase){ list=list.filter(p=>currentPhase(p)===filter.phase); }
   if(filter.sort==="recent") list.sort((a,b)=>b.createdAt-a.createdAt);
   else if(filter.sort==="progress") list.sort((a,b)=>progress(b)-progress(a));
@@ -625,7 +634,7 @@ function card(p){
     <div class="pc-top">
       <div style="min-width:0">
         <h3>${esc(p.name||"（商品名未設定）")}</h3>
-        <div class="pmeta">${p.client?`<span>${esc(p.client)}</span>`:""}${p.owner?`<span>営業 ${esc(p.owner)}</span>`:""}${p.start?`<span>販売開始 ${esc(p.start)}</span>`:""}</div>
+        <div class="pmeta">${p.kind?`<span class="kindtag kt-${KIND_KEY[p.kind]||""}">${esc(p.kind)}</span>`:""}${p.client?`<span>${esc(p.client)}</span>`:""}${p.owner?`<span>営業 ${esc(p.owner)}</span>`:""}${p.start?`<span>販売開始 ${esc(p.start)}</span>`:""}</div>
       </div>
       <div class="pc-topright">
         <span class="stagepill sp-${STAGE_KEY[stage]}">${esc(stage)}</span>
@@ -662,6 +671,11 @@ function openDetail(id){
   // head
   const head=el("div","dhead");
   head.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（商品名未設定）")}</div>`;
+  const kindSel=el("select","kindsel"+(p.kind?" kind-"+KIND_KEY[p.kind]:""));
+  kindSel.title="商品区分（自社商品／OEM）";
+  kindSel.innerHTML='<option value="">区分：未選択</option>'+KINDS.map(k=>'<option'+(k===p.kind?' selected':'')+'>'+k+'</option>').join("");
+  kindSel.addEventListener("change",()=>{ p.kind=kindSel.value; kindSel.className="kindsel"+(p.kind?" kind-"+KIND_KEY[p.kind]:""); persist(); render(); });
+  head.appendChild(kindSel);
   if(!p.stage) p.stage="構想中";
   const stageSel=el("select","stagesel stage-"+STAGE_KEY[p.stage]);
   stageSel.title="商品ステータス";
