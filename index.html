@@ -330,6 +330,7 @@
 const PHASES = [
   {key:"P1", name:"PHASE 1", steps:[
     ["01","商品イメージの共有"],
+    ["25","実現性の検討"],       // 追加工程（IDは過去の版で未使用の値）
     ["02","商品開発"],
     ["12","社内試食"],
     ["03","レシピ共有"],
@@ -353,7 +354,7 @@ const PHASES = [
 const STEP_LIST = [];   // {no,phaseKey,phaseName,name,owner,days,deliv,gate}
 PHASES.forEach(p=>p.steps.forEach(s=>STEP_LIST.push({no:s[0],phaseKey:p.key,phaseName:p.name,name:s[1],owner:s[2],days:s[3],deliv:s[4],gate:!!s[5]})));
 const STEP_NO = {}; STEP_LIST.forEach((s,i)=>STEP_NO[s.no]=String(i+1).padStart(2,"0"));   // 工程IDは据え置き、表示番号のみ通し
-const TOTAL = STEP_LIST.length;   // 15
+const TOTAL = STEP_LIST.length;   // 16
 const STATUSES = ["未着手","進行中","完了"];
 const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":""};
 const SETTLED = ["完了"];   // 進捗・フェーズ判定で「処理済み」とみなす
