@@ -145,7 +145,10 @@
   .drawer{position:fixed;top:0;right:0;height:100vh;width:min(680px,96vw);background:var(--paper);box-shadow:var(--shadow-lg);z-index:61;transform:translateX(102%);transition:transform .26s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
   .drawer.show{transform:none}
   .dhead{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;background:var(--surface)}
-  .dhead .dtitle{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dhead .dhmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+  .dhead .dtitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dhead .dsels{display:flex;gap:8px;flex-wrap:wrap}
+  .dhead .x{align-self:flex-start}
   .dhead .x{margin-left:auto;border:0;background:transparent;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:grid;place-items:center}
   .dhead .x:hover{background:var(--surface-2);color:var(--ink)}
   .dbody{overflow:auto;padding:16px 18px 40px;flex:1}
@@ -677,18 +680,21 @@ function openDetail(id){
   d.innerHTML="";
   // head
   const head=el("div","dhead");
-  head.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（タイトル未設定）")}</div>`;
+  // タイトルの下に「区分」「商品ステータス」を並べる
+  const hmain=el("div","dhmain");
+  hmain.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（タイトル未設定）")}</div>`;
+  const sels=el("div","dsels"); hmain.appendChild(sels); head.appendChild(hmain);
   const kindSel=el("select","kindsel"+(p.kind?" kind-"+KIND_KEY[p.kind]:""));
   kindSel.title="商品区分（自社商品／OEM）";
   kindSel.innerHTML='<option value="">区分：未選択</option>'+KINDS.map(k=>'<option'+(k===p.kind?' selected':'')+'>'+k+'</option>').join("");
   kindSel.addEventListener("change",()=>{ p.kind=kindSel.value; kindSel.className="kindsel"+(p.kind?" kind-"+KIND_KEY[p.kind]:""); persist(); render(); });
-  head.appendChild(kindSel);
+  sels.appendChild(kindSel);
   if(!p.stage) p.stage="構想中";
   const stageSel=el("select","stagesel stage-"+STAGE_KEY[p.stage]);
   stageSel.title="商品ステータス";
   stageSel.innerHTML=STAGES.map(s=>`<option${s===p.stage?" selected":""}>${s}</option>`).join("");
   stageSel.addEventListener("change",()=>{ p.stage=stageSel.value; stageSel.className="stagesel stage-"+STAGE_KEY[p.stage]; persist(); render(); });
-  head.appendChild(stageSel);
+  sels.appendChild(stageSel);
   const x=el("button","x",`<svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>`);
   x.onclick=closeDetail; head.appendChild(x);
   d.appendChild(head);
@@ -706,7 +712,7 @@ function openDetail(id){
     if(unit) inp.setAttribute("inputmode","decimal");
     inp.value=p[key]||"";
     // 入力を即時に反映（ヘッダーのタイトルも追従）
-    inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.firstChild.textContent=p.name||"（タイトル未設定）"; if(after) after(); });
+    inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.querySelector(".dtitle").textContent=p.name||"（タイトル未設定）"; if(after) after(); });
     // 確定時（フォーカスを外したとき）に保存し、一覧カードへ反映
     inp.addEventListener("change",()=>{ p[key]=inp.value; if(after) after(); persist(); render(); });
     if(unit){ const w=el("div","uwrap"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:unit})); f.appendChild(w); }
