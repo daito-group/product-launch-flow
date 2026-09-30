@@ -374,9 +374,11 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 let toastTimer=null;
 function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3200); }
 
+// 端末の日付で yyyy-mm-dd（依頼日の既定値）
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
-  return Object.assign({id:uid(),name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+(SETTLED.includes((p.steps[s.no]||{}).status)?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -420,7 +422,7 @@ const isConnected=()=>!!(conn.url&&conn.token);
 const clone=o=>JSON.parse(JSON.stringify(o));
 function canon(o){ if(Array.isArray(o)) return "["+o.map(canon).join(",")+"]"; if(o&&typeof o==="object") return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}"; return JSON.stringify(o===undefined?null:o); }
 const same=(a,b)=>canon(a)===canon(b);
-const PDEF={name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:""};
+const PDEF={name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:""};
 const SDEF={status:"未着手",start:"",done:"",note:"",owner:""};
 const bval=(o,k,def)=> (o && k in o) ? o[k] : (def && k in def ? def[k] : undefined);
 /* 既定値のままの欄・工程を除いた「中身」（画面を開いただけで生じる差分を変更扱いしないため） */
@@ -572,7 +574,7 @@ async function pushToServer(keepalive){
 /* この端末だけに保存されている商品を共有データへ追加（共有データ側の内容は消さない） */
 const SEED_NAMES=["サンプル商品（削除できます）","減塩和風ドレッシング（200ml）","（例）減塩和風ドレッシング（200ml）"];
 const isSeed=p=>SEED_NAMES.includes(p.name||"");
-const isBlank=p=>!p.name && !["reqDate","kind","owner","client","retail","unit","cost","spec","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
+const isBlank=p=>!p.name && !["kind","owner","client","retail","unit","cost","spec","qty","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
 function localOnly(snap){ const inRemote=new Set(((baseState&&baseState.products)||[]).map(p=>p.id)); return ((snap&&snap.products)||[]).filter(p=>!inRemote.has(p.id)&&!isSeed(p)&&!isBlank(p)); }
 function addLocalOnly(snap){ const extra=localOnly(snap), inState=new Set(state.products.map(p=>p.id)); extra.forEach(p=>{ if(!inState.has(p.id)) state.products.push(clone(p)); }); return extra.length; }
 function offerLocalUpload(snap){
@@ -721,17 +723,18 @@ function openDetail(id){
     const w=el("div","uwrap auto"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:"％"}));
     f.appendChild(w); return f;
   };
-  // 並びは記入用紙に準拠：タイトル → 依頼日・営業担当 → 最新状況 → 販売先・価格 → 規格・値入率 → 日付
+  // 並びは記入用紙に準拠：タイトル → 依頼日・営業担当 → 最新状況 → 販売先・価格・値入率 → 規格・予想出数 → 日付
   info.appendChild(F("タイトル","name","text",true));
   info.appendChild(F("依頼日","reqDate","date"));
   info.appendChild(F("営業担当","owner","text"));
   info.appendChild(F("最新状況","note","ta",true));
-  info.appendChild(F("想定販売先","client","text"));
+  info.appendChild(F("想定販売先","client","text",true));
   info.appendChild(F("希望小売価格","retail","text",false,"円"));
   info.appendChild(F("希望納入単価","unit","text",false,"円",refreshMarkup));
   info.appendChild(F("目標製造原価","cost","text",false,"円",refreshMarkup));
-  info.appendChild(F("規格","spec","text"));
   info.appendChild(markupField());
+  info.appendChild(F("規格","spec","text"));
+  info.appendChild(F("予想出数","qty","text"));
   info.appendChild(F("企画開始日","planStart","date"));
   info.appendChild(F("販売開始日","start","date"));
   body.appendChild(info);
@@ -759,7 +762,7 @@ function openDetail(id){
   const del=el("button","btn danger",trash+"削除");
   del.onclick=()=>{ if(confirm(`「${p.name||"この商品"}」を削除します。\nこの操作は元に戻せません。本当に削除してよろしいですか？`)){ state.products=state.products.filter(x=>x.id!==id); persist(); closeDetail(); render(); toast("削除しました"); } };
   const dup=el("button","btn","複製");
-  dup.onclick=()=>{ const np=JSON.parse(JSON.stringify(p)); np.id=uid(); np.name=(p.name||"商品")+"（複製）"; np.createdAt=Date.now(); state.products.push(np); persist(); render(); openDetail(np.id); toast("複製しました"); };
+  dup.onclick=()=>{ const np=JSON.parse(JSON.stringify(p)); np.id=uid(); np.name=(p.name||"商品")+"（複製）"; np.reqDate=todayStr(); np.createdAt=Date.now(); state.products.push(np); persist(); render(); openDetail(np.id); toast("複製しました"); };
   const save=el("button","btn primary",`<svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>保存`);
   save.onclick=()=>{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); persist(); toast("保存しました"); closeDetail(); };
   foot.appendChild(del); foot.appendChild(dup); foot.appendChild(save);
@@ -817,7 +820,7 @@ function exportJSON(){ download("新商品導入フロー_"+new Date().toISOStri
 function importJSON(file){ const r=new FileReader(); r.onload=()=>{ try{ const p=JSON.parse(r.result); if(!p||!Array.isArray(p.products)) throw 0; state=p; persist(); render(); toast("読み込みました"); }catch(e){ toast("読み込めませんでした（ファイル形式を確認）"); } }; r.readAsText(file); }
 
 /* ======================= 配線 ======================= */
-$("#btnNew").addEventListener("click",()=>{ const p=newProduct(); state.products.push(p); persist(); render(); openDetail(p.id); });
+$("#btnNew").addEventListener("click",()=>{ const p=newProduct({reqDate:todayStr()}); state.products.push(p); persist(); render(); openDetail(p.id); });
 $("#btnExport").addEventListener("click",exportJSON);
 $("#btnImport").addEventListener("click",()=>$("#fileInput").click());
 $("#fileInput").addEventListener("change",e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=""; });
