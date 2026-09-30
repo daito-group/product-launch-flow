@@ -30,7 +30,7 @@
   .info .v{ padding:0 2mm; font-size:10pt; }
   .info .v.unit{ text-align:right; }
   .info .v .u{ font-size:8.5pt; color:#555; margin-left:1mm; }
-  .info .ttl td{ height:12mm; }
+  .info .ttl td{ height:11mm; }
   .info .memo td{ height:27mm; }   /* 最新状況：2.7cm */
   .info .memo.lg td{ height:24mm; }
   .info .chk td{ height:7.8mm; }
@@ -43,7 +43,7 @@
 
   .steps{ table-layout:fixed; }
   .steps th{ background:var(--band); border:.6pt solid var(--line); font-size:8pt; font-weight:700; height:6.4mm; letter-spacing:.04em; }
-  .steps td{ border:.6pt solid var(--line2); height:6.7mm; font-size:9.5pt; padding:0 1.5mm; }
+  .steps td{ border:.6pt solid var(--line2); height:6.4mm; font-size:9.5pt; padding:0 1.5mm; }
   .steps td.no{ text-align:center; font-size:8.5pt; color:#444; font-variant-numeric:tabular-nums; }
   .steps td.nm{ font-weight:600; }
   .steps td.st{ text-align:center; font-size:8.5pt; color:#333; letter-spacing:.08em; white-space:nowrap; }
@@ -56,7 +56,7 @@
   .info .memo .v{ vertical-align:top; padding-top:1.2mm; }
   .info .memo .v .fill{ font-size:9pt; line-height:1.4; max-height:24.5mm; }
   .info .memo.lg .v .fill{ max-height:21.5mm; }
-  .steps td .fill{ font-size:8.5pt; line-height:1.2; max-height:6.1mm; overflow:hidden; word-break:break-word; }
+  .steps td .fill{ font-size:8.5pt; line-height:1.2; max-height:5.8mm; overflow:hidden; word-break:break-word; }
   .steps td.st span.sel{ border:1pt solid var(--ink); border-radius:50%; padding:0 .5mm; font-weight:800; }
   .foot{ display:flex; justify-content:flex-end; margin-top:1.5mm; font-size:7.5pt; color:#555; }
 
@@ -119,7 +119,7 @@
     </tr>
   </table>
 
-  <div class="sec">工程チェック（全16工程）　※「状況」は該当に○</div>
+  <div class="sec">工程チェック（全17工程）　※「状況」は該当に○</div>
 
   <table class="steps">
     <colgroup>
@@ -130,7 +130,7 @@
       <tr><th>No</th><th>工程</th><th>担当</th><th>依頼日</th><th>〆切</th><th>状況</th><th>備考</th></tr>
     </thead>
     <tbody>
-      <tr class="band"><td colspan="7">PHASE 1　<span class="bandn">（8工程）</span></td></tr>
+      <tr class="band"><td colspan="7">PHASE 1　<span class="bandn">（9工程）</span></td></tr>
       <tr data-id="01">
         <td class="no">01</td>
         <td class="nm">商品イメージの共有</td>
@@ -173,15 +173,22 @@
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr data-id="13">
+      <tr data-id="26">
         <td class="no">07</td>
+        <td class="nm">実現性の再検討</td>
+        <td></td><td></td><td></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td></td>
+      </tr>
+      <tr data-id="13">
+        <td class="no">08</td>
         <td class="nm">仮製造工程表の作成</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr data-id="14">
-        <td class="no">08</td>
+        <td class="no">09</td>
         <td class="nm">仮見積りの作成</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
@@ -189,35 +196,35 @@
       </tr>
       <tr class="band"><td colspan="7">PHASE 2　<span class="bandn">（5工程）</span></td></tr>
       <tr data-id="05">
-        <td class="no">09</td>
+        <td class="no">10</td>
         <td class="nm">カルテ作成</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr data-id="06">
-        <td class="no">10</td>
+        <td class="no">11</td>
         <td class="nm">倉庫スケジュール作成</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr data-id="07">
-        <td class="no">11</td>
+        <td class="no">12</td>
         <td class="nm">パッケージ作成</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr data-id="08">
-        <td class="no">12</td>
+        <td class="no">13</td>
         <td class="nm">大量生産の試作</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr data-id="15">
-        <td class="no">13</td>
+        <td class="no">14</td>
         <td class="nm">菌検査</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
@@ -225,21 +232,21 @@
       </tr>
       <tr class="band"><td colspan="7">PHASE 3　<span class="bandn">（3工程）</span></td></tr>
       <tr data-id="09">
-        <td class="no">14</td>
+        <td class="no">15</td>
         <td class="nm">従業員試食</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr data-id="10">
-        <td class="no">15</td>
+        <td class="no">16</td>
         <td class="nm">最終見積りの作成</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr data-id="11">
-        <td class="no">16</td>
+        <td class="no">17</td>
         <td class="nm">納品スケジュールの確定</td>
         <td></td><td></td><td></td>
         <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
