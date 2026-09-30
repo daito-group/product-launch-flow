@@ -160,7 +160,8 @@
   .infogrid input{text-align:right}
   /* 記入用紙に合わせ、タイトルは大きく・最新状況は高く */
   .field.ttl input{font-size:16px;font-weight:800;padding:10px 12px}
-  .field.memo textarea{min-height:130px;line-height:1.6}
+  .field.memo textarea{min-height:90px;line-height:1.6}
+  .field.memo.lg textarea{min-height:130px}
   /* 単位つきフィールド（円・％） */
   .field .uwrap{display:flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:7px 9px;transition:.14s}
   .field .uwrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -378,7 +379,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
-  return Object.assign({id:uid(),name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",share:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+(SETTLED.includes((p.steps[s.no]||{}).status)?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -422,7 +423,7 @@ const isConnected=()=>!!(conn.url&&conn.token);
 const clone=o=>JSON.parse(JSON.stringify(o));
 function canon(o){ if(Array.isArray(o)) return "["+o.map(canon).join(",")+"]"; if(o&&typeof o==="object") return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}"; return JSON.stringify(o===undefined?null:o); }
 const same=(a,b)=>canon(a)===canon(b);
-const PDEF={name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:""};
+const PDEF={name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",share:""};
 const SDEF={status:"未着手",start:"",done:"",note:"",owner:""};
 const bval=(o,k,def)=> (o && k in o) ? o[k] : (def && k in def ? def[k] : undefined);
 /* 既定値のままの欄・工程を除いた「中身」（画面を開いただけで生じる差分を変更扱いしないため） */
@@ -574,7 +575,7 @@ async function pushToServer(keepalive){
 /* この端末だけに保存されている商品を共有データへ追加（共有データ側の内容は消さない） */
 const SEED_NAMES=["サンプル商品（削除できます）","減塩和風ドレッシング（200ml）","（例）減塩和風ドレッシング（200ml）"];
 const isSeed=p=>SEED_NAMES.includes(p.name||"");
-const isBlank=p=>!p.name && !["kind","owner","client","retail","unit","cost","spec","qty","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
+const isBlank=p=>!p.name && !["kind","owner","client","retail","unit","cost","spec","qty","planStart","start","note","share"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
 function localOnly(snap){ const inRemote=new Set(((baseState&&baseState.products)||[]).map(p=>p.id)); return ((snap&&snap.products)||[]).filter(p=>!inRemote.has(p.id)&&!isSeed(p)&&!isBlank(p)); }
 function addLocalOnly(snap){ const extra=localOnly(snap), inState=new Set(state.products.map(p=>p.id)); extra.forEach(p=>{ if(!inState.has(p.id)) state.products.push(clone(p)); }); return extra.length; }
 function offerLocalUpload(snap){
@@ -699,7 +700,8 @@ function openDetail(id){
     const f=el("div","field"+(full?" full":"")); f.innerHTML=`<label>${label}</label>`;
     const inp=el(type==="ta"?"textarea":"input");
     if(key==="name") f.classList.add("ttl");
-    if(key==="note"){ f.classList.add("memo"); inp.rows=6; }
+    if(key==="note"){ f.classList.add("memo"); inp.rows=4; }
+    if(key==="share"){ f.classList.add("memo","lg"); inp.rows=6; }
     if(type==="date") inp.type="date"; else if(type!=="ta") inp.type="text";
     if(unit) inp.setAttribute("inputmode","decimal");
     inp.value=p[key]||"";
@@ -728,6 +730,7 @@ function openDetail(id){
   info.appendChild(F("依頼日","reqDate","date"));
   info.appendChild(F("営業担当","owner","text"));
   info.appendChild(F("最新状況","note","ta",true));
+  info.appendChild(F("共有情報","share","ta",true));
   info.appendChild(F("想定販売先","client","text",true));
   info.appendChild(F("希望小売価格","retail","text",false,"円"));
   info.appendChild(F("希望納入単価","unit","text",false,"円",refreshMarkup));
