@@ -186,6 +186,10 @@
 
   .step{display:grid;grid-template-columns:34px 1fr;gap:0 10px;padding:11px 13px;border-top:1px solid var(--line)}
   .step .sno{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+  .step.na{background:var(--surface-2)}
+  .step.na .sname,.step.na .ssub{color:var(--faint)}
+  .step .sctrl .sstat.st-skip{background:var(--surface-3);color:var(--muted)}
+  .step.na .sno{opacity:.45}
   .step.gate .sno{background:var(--gate);border-radius:6px;transform:rotate(45deg)}
   .step.gate .sno span{transform:rotate(-45deg)}
   .step .sname{font-weight:700;font-size:13.5px}
@@ -361,9 +365,9 @@ const STEP_LIST = [];   // {no,phaseKey,phaseName,name,owner,days,deliv,gate}
 PHASES.forEach(p=>p.steps.forEach(s=>STEP_LIST.push({no:s[0],phaseKey:p.key,phaseName:p.name,name:s[1],owner:s[2],days:s[3],deliv:s[4],gate:!!s[5]})));
 const STEP_NO = {}; STEP_LIST.forEach((s,i)=>STEP_NO[s.no]=String(i+1).padStart(2,"0"));   // 工程IDは据え置き、表示番号のみ通し
 const TOTAL = STEP_LIST.length;   // 16
-const STATUSES = ["未着手","進行中","完了"];
-const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":""};
-const SETTLED = ["完了"];   // 進捗・フェーズ判定で「処理済み」とみなす
+const STATUSES = ["未着手","進行中","完了","なし"];   // なし＝この商品では行わない工程
+const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":"","なし":"st-skip"};
+const SETTLED = ["完了","なし"];   // 進捗・フェーズ判定で「処理済み」とみなす
 const STAGES = ["構想中","提案中","サンプル依頼","採用","不採用"];   // 商品ステータス
 const STAGE_KEY = {"構想中":"idea","提案中":"prop","サンプル依頼":"sample","採用":"adopt","不採用":"reject"};
 const KINDS = ["自社商品","OEM"];   // 商品区分
@@ -798,7 +802,7 @@ function stepRow(p,s){
   const [no,name,owner,days,deliv,gate]=s;
   const st=p.steps[no]||(p.steps[no]={status:"未着手",start:"",done:"",note:"",owner:""});
   if(st.owner===undefined) st.owner="";
-  const row=el("div","step"+(gate?" gate":""));
+  const row=el("div","step"+(gate?" gate":"")+(st.status==="なし"?" na":""));
   const parts=[]; if(owner)parts.push(owner); if(days)parts.push("目安 "+days); if(deliv)parts.push(deliv);
   const subHtml=parts.length?`<div class="ssub">${esc(parts.join("｜"))}</div>`:"";
   row.innerHTML=`<div class="sno"><span>${STEP_NO[no]||no}</span></div>
@@ -806,7 +810,7 @@ function stepRow(p,s){
   const ctrl=el("div","sctrl");
   const sel=el("select","sstat "+(STAT_CLASS[st.status]||""));
   sel.innerHTML=STATUSES.map(v=>`<option${v===st.status?" selected":""}>${v}</option>`).join("");
-  sel.addEventListener("change",()=>{ st.status=sel.value; sel.className="sstat "+(STAT_CLASS[st.status]||""); persist(); updateSummary(p); render(); });
+  sel.addEventListener("change",()=>{ st.status=sel.value; sel.className="sstat "+(STAT_CLASS[st.status]||""); row.classList.toggle("na", st.status==="なし"); persist(); updateSummary(p); render(); });
   const own=el("input","sowner"); own.type="text"; own.placeholder="担当者名"; own.value=st.owner||""; own.title="この工程の担当者";
   own.addEventListener("input",()=>{ st.owner=own.value; });
   own.addEventListener("change",()=>{ st.owner=own.value; persist(); });

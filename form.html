@@ -46,7 +46,7 @@
   .steps td{ border:.6pt solid var(--line2); height:6.4mm; font-size:9.5pt; padding:0 1.5mm; }
   .steps td.no{ text-align:center; font-size:8.5pt; color:#444; font-variant-numeric:tabular-nums; }
   .steps td.nm{ font-weight:600; }
-  .steps td.st{ text-align:center; font-size:8.5pt; color:#333; letter-spacing:.08em; white-space:nowrap; }
+  .steps td.st{ text-align:center; font-size:8.5pt; color:#333; letter-spacing:.02em; white-space:nowrap; padding:0 .5mm; }
   .steps tr.band td{ background:var(--band); border:.6pt solid var(--line); font-size:8.5pt; font-weight:800; height:5mm; color:var(--accent); letter-spacing:.06em; }
   .steps tr.band .bandn{ font-weight:600; color:#555; font-size:7.5pt; }
 
@@ -57,6 +57,7 @@
   .info .memo .v .fill{ font-size:9pt; line-height:1.4; max-height:24.5mm; }
   .info .memo.lg .v .fill{ max-height:21.5mm; }
   .steps td .fill{ font-size:8.5pt; line-height:1.2; max-height:5.8mm; overflow:hidden; word-break:break-word; }
+  .steps tr.na td{ color:#999; background:#efefef; }
   .steps td.st span.sel{ border:1pt solid var(--ink); border-radius:50%; padding:0 .5mm; font-weight:800; }
   .foot{ display:flex; justify-content:flex-end; margin-top:1.5mm; font-size:7.5pt; color:#555; }
 
@@ -124,7 +125,7 @@
   <table class="steps">
     <colgroup>
       <col style="width:9mm"><col style="width:48mm"><col style="width:24mm">
-      <col style="width:22mm"><col style="width:22mm"><col style="width:24mm"><col>
+      <col style="width:22mm"><col style="width:22mm"><col style="width:29mm"><col>
     </colgroup>
     <thead>
       <tr><th>No</th><th>工程</th><th>担当</th><th>依頼日</th><th>〆切</th><th>状況</th><th>備考</th></tr>
@@ -135,63 +136,63 @@
         <td class="no">01</td>
         <td class="nm">商品イメージの共有</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="25">
         <td class="no">02</td>
         <td class="nm">実現性の検討</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="02">
         <td class="no">03</td>
         <td class="nm">商品開発</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="12">
         <td class="no">04</td>
         <td class="nm">社内試食</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="03">
         <td class="no">05</td>
         <td class="nm">レシピ共有</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="04">
         <td class="no">06</td>
         <td class="nm">原料選定</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="13">
         <td class="no">07</td>
         <td class="nm">仮製造工程表の作成</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="14">
         <td class="no">08</td>
         <td class="nm">仮見積りの作成</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="26">
         <td class="no">09</td>
         <td class="nm">実現性の再検討</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr class="band"><td colspan="7">PHASE 2　<span class="bandn">（5工程）</span></td></tr>
@@ -199,35 +200,35 @@
         <td class="no">10</td>
         <td class="nm">カルテ作成</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="06">
         <td class="no">11</td>
         <td class="nm">倉庫スケジュール作成</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="07">
         <td class="no">12</td>
         <td class="nm">パッケージ作成</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="08">
         <td class="no">13</td>
         <td class="nm">大量生産の試作</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="15">
         <td class="no">14</td>
         <td class="nm">菌検査</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr class="band"><td colspan="7">PHASE 3　<span class="bandn">（3工程）</span></td></tr>
@@ -235,21 +236,21 @@
         <td class="no">15</td>
         <td class="nm">従業員試食</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="10">
         <td class="no">16</td>
         <td class="nm">最終見積りの作成</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
       <tr data-id="11">
         <td class="no">17</td>
         <td class="nm">納品スケジュールの確定</td>
         <td></td><td></td><td></td>
-        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span>・<span data-s="なし">なし</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -294,6 +295,7 @@
     fill(td[2], s.owner); fill(td[3], ymd(s.start)); fill(td[4], ymd(s.done)); fill(td[6], s.note);
     var sv=s.status||'未着手';
     td[5].querySelectorAll('span').forEach(function(x){ if(x.getAttribute('data-s')===sv) x.classList.add('sel'); });
+    if(sv==='なし') tr.classList.add('na');
   });
   bar.textContent='「'+(p.name||'（タイトル未設定）')+'」の登録内容を表示しています。A4・1枚で印刷できます。';
   if(q.get('print')==='1') setTimeout(function(){ window.print(); }, 400);
