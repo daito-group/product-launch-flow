@@ -772,7 +772,11 @@ function openDetail(id){
   dup.onclick=()=>{ const np=JSON.parse(JSON.stringify(p)); np.id=uid(); np.name=(p.name||"商品")+"（複製）"; np.reqDate=todayStr(); np.createdAt=Date.now(); state.products.push(np); persist(); render(); openDetail(np.id); toast("複製しました"); };
   const save=el("button","btn primary",`<svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>保存`);
   save.onclick=()=>{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); persist(); toast("保存しました"); closeDetail(); };
-  foot.appendChild(del); foot.appendChild(dup); foot.appendChild(save);
+  // 入力内容をA4記入用紙の形で印刷（別タブで開いて印刷ダイアログを出す）
+  const prt=el("button","btn",`<svg class="icon" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>印刷`);
+  prt.title="この商品の登録内容をA4の記入用紙の形で印刷します";
+  prt.onclick=()=>{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); saveLocal(); window.open("form.html?id="+encodeURIComponent(p.id)+"&print=1","_blank"); };
+  foot.appendChild(del); foot.appendChild(dup); foot.appendChild(prt); foot.appendChild(save);
   d.appendChild(foot);
 
   $("#scrim").classList.add("show"); d.classList.add("show"); d.setAttribute("aria-hidden","false");

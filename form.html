@@ -50,6 +50,14 @@
   .steps tr.band td{ background:var(--band); border:.6pt solid var(--line); font-size:8.5pt; font-weight:800; height:5.6mm; color:var(--accent); letter-spacing:.06em; }
   .steps tr.band .bandn{ font-weight:600; color:#555; font-size:7.5pt; }
 
+  /* アプリの登録内容を差し込んだとき */
+  .cb i{ display:inline-grid; place-items:center; font-style:normal; font-size:9pt; font-weight:900; line-height:1; }
+  .info .v .fill{ overflow:hidden; word-break:break-word; white-space:pre-wrap; max-height:11mm; }
+  .info .memo .v{ vertical-align:top; padding-top:1.2mm; }
+  .info .memo .v .fill{ font-size:9pt; line-height:1.4; max-height:15.5mm; }
+  .info .memo.lg .v .fill{ max-height:21.5mm; }
+  .steps td .fill{ font-size:8.5pt; line-height:1.2; max-height:6.2mm; overflow:hidden; word-break:break-word; }
+  .steps td.st span.sel{ border:1pt solid var(--ink); border-radius:50%; padding:0 .5mm; font-weight:800; }
   .foot{ display:flex; gap:5mm; margin-top:2mm; font-size:7.5pt; color:#555; }
   .foot .note{ flex:1; }
 
@@ -75,44 +83,40 @@
     </div>
     <div class="meta">依頼日 <u id="reqDate" contenteditable="true" title="記入日（開いた日）が入ります。クリックして書き換えできます"></u></div>
   </div>
-  <script>
-    // 依頼日＝記入日：用紙を開いた日の日付を入れる（クリックで書き換え可）
-    (function(){ var d=new Date(); document.getElementById('reqDate').textContent=d.getFullYear()+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'); })();
-  </script>
 
   <table class="info">
     <tr class="ttl">
-      <td class="k">タイトル</td><td class="v" colspan="3"></td>
-      <td class="k">営業担当</td><td class="v"></td>
+      <td class="k">タイトル</td><td class="v" data-k="name" colspan="3"></td>
+      <td class="k">営業担当</td><td class="v" data-k="owner"></td>
     </tr>
     <tr class="chk">
-      <td class="k">商品ステータス</td><td colspan="5"><div class="cbs"><label class="cb"><i></i>構想中</label><label class="cb"><i></i>提案中</label><label class="cb"><i></i>サンプル依頼</label><label class="cb"><i></i>採用</label><label class="cb"><i></i>不採用</label></div></td>
+      <td class="k">商品ステータス</td><td colspan="5"><div class="cbs" data-g="stage"><label class="cb" data-v="構想中"><i></i>構想中</label><label class="cb" data-v="提案中"><i></i>提案中</label><label class="cb" data-v="サンプル依頼"><i></i>サンプル依頼</label><label class="cb" data-v="採用"><i></i>採用</label><label class="cb" data-v="不採用"><i></i>不採用</label></div></td>
     </tr>
     <tr class="memo">
-      <td class="k">最新状況</td><td class="v" colspan="5"></td>
+      <td class="k">最新状況</td><td class="v" data-k="note" colspan="5"></td>
     </tr>
     <tr class="memo lg">
-      <td class="k">共有情報</td><td class="v" colspan="5"></td>
+      <td class="k">共有情報</td><td class="v" data-k="share" colspan="5"></td>
     </tr>
     <tr class="chk">
-      <td class="k">商品区分</td><td colspan="5"><div class="cbs"><label class="cb"><i></i>自社商品</label><label class="cb"><i></i>OEM</label><span class="hint">※どちらか一方にチェック</span></div></td>
+      <td class="k">商品区分</td><td colspan="5"><div class="cbs" data-g="kind"><label class="cb" data-v="自社商品"><i></i>自社商品</label><label class="cb" data-v="OEM"><i></i>OEM</label><span class="hint">※どちらか一方にチェック</span></div></td>
     </tr>
     <tr>
-      <td class="k">想定販売先</td><td class="v" colspan="3"></td>
-      <td class="k">希望小売価格</td><td class="v unit"><span class="u">円</span></td>
+      <td class="k">想定販売先</td><td class="v" data-k="client" colspan="3"></td>
+      <td class="k">希望小売価格</td><td class="v unit" data-k="retail"><span class="u">円</span></td>
     </tr>
     <tr>
-      <td class="k">希望納入単価</td><td class="v unit"><span class="u">円</span></td>
-      <td class="k">目標製造原価</td><td class="v unit"><span class="u">円</span></td>
-      <td class="k">値入率</td><td class="v unit"><span class="u">％</span></td>
+      <td class="k">希望納入単価</td><td class="v unit" data-k="unit"><span class="u">円</span></td>
+      <td class="k">目標製造原価</td><td class="v unit" data-k="cost"><span class="u">円</span></td>
+      <td class="k">値入率</td><td class="v unit" data-k="markup"><span class="u">％</span></td>
     </tr>
     <tr>
-      <td class="k">規格</td><td class="v" colspan="2"></td>
-      <td class="k">予想出数</td><td class="v" colspan="2"></td>
+      <td class="k">規格</td><td class="v" data-k="spec" colspan="2"></td>
+      <td class="k">予想出数</td><td class="v" data-k="qty" colspan="2"></td>
     </tr>
     <tr>
-      <td class="k">企画開始日</td><td class="v" colspan="2"></td>
-      <td class="k">販売開始日</td><td class="v" colspan="2"></td>
+      <td class="k">企画開始日</td><td class="v" data-k="planStart" colspan="2"></td>
+      <td class="k">販売開始日</td><td class="v" data-k="start" colspan="2"></td>
     </tr>
   </table>
 
@@ -128,118 +132,118 @@
     </thead>
     <tbody>
       <tr class="band"><td colspan="7">PHASE 1　<span class="bandn">（8工程）</span></td></tr>
-      <tr>
+      <tr data-id="01">
         <td class="no">01</td>
         <td class="nm">商品イメージの共有</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="25">
         <td class="no">02</td>
         <td class="nm">実現性の検討</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="02">
         <td class="no">03</td>
         <td class="nm">商品開発</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="12">
         <td class="no">04</td>
         <td class="nm">社内試食</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="03">
         <td class="no">05</td>
         <td class="nm">レシピ共有</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="04">
         <td class="no">06</td>
         <td class="nm">原料選定</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="13">
         <td class="no">07</td>
         <td class="nm">仮製造工程表の作成</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="14">
         <td class="no">08</td>
         <td class="nm">仮見積りの作成</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr class="band"><td colspan="7">PHASE 2　<span class="bandn">（5工程）</span></td></tr>
-      <tr>
+      <tr data-id="05">
         <td class="no">09</td>
         <td class="nm">カルテ作成</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="06">
         <td class="no">10</td>
         <td class="nm">倉庫スケジュール作成</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="07">
         <td class="no">11</td>
         <td class="nm">パッケージ作成</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="08">
         <td class="no">12</td>
         <td class="nm">大量生産の試作</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="15">
         <td class="no">13</td>
         <td class="nm">菌検査</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
       <tr class="band"><td colspan="7">PHASE 3　<span class="bandn">（3工程）</span></td></tr>
-      <tr>
+      <tr data-id="09">
         <td class="no">14</td>
         <td class="nm">従業員試食</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="10">
         <td class="no">15</td>
         <td class="nm">最終見積りの作成</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
-      <tr>
+      <tr data-id="11">
         <td class="no">16</td>
         <td class="nm">納品スケジュールの確定</td>
         <td></td><td></td><td></td>
-        <td class="st">未・進・完</td>
+        <td class="st"><span data-s="未着手">未</span>・<span data-s="進行中">進</span>・<span data-s="完了">完</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -251,5 +255,44 @@
   </div>
 </div>
 
+<script>
+/* 白紙で開いた場合：依頼日＝記入日（開いた日）。
+   アプリの「印刷」から開いた場合（?id=商品ID）：この端末に保存されている登録内容を差し込む */
+(function(){
+  function pad(n){ return String(n).padStart(2,'0'); }
+  var d=new Date(), today=d.getFullYear()+'/'+pad(d.getMonth()+1)+'/'+pad(d.getDate());
+  var rq=document.getElementById('reqDate');
+  var q=new URLSearchParams(location.search), id=q.get('id');
+  if(!id){ rq.textContent=today; return; }
+  var st=null; try{ st=JSON.parse(localStorage.getItem('shinshohin-donyu-v1')); }catch(e){}
+  var p=(st&&st.products||[]).filter(function(x){ return x.id===id; })[0];
+  var bar=document.querySelector('.toolbar span');
+  if(!p){ bar.textContent='商品データが見つかりませんでした。アプリの詳細画面から「印刷」を押し直してください。'; rq.textContent=''; return; }
+  function ymd(v){ return v ? String(v).split('-').join('/') : ''; }
+  function num(v){ var t=String(v==null?'':v).trim(); if(/^[0-9]+([.][0-9]+)?$/.test(t)) return Number(t).toLocaleString('ja-JP'); return t; }
+  function fill(el, v){ if(!el || v==null || v==='') return; var f=document.createElement('div'); f.className='fill'; f.textContent=v; var u=el.querySelector('.u'); if(u){ f.style.display='inline'; el.insertBefore(f,u); } else el.appendChild(f); }
+  function put(k, v){ fill(document.querySelector('[data-k="'+k+'"]'), v); }
+  function check(g, v){ document.querySelectorAll('[data-g="'+g+'"] .cb').forEach(function(c){ if(c.getAttribute('data-v')===v){ c.classList.add('on'); c.querySelector('i').textContent='✓'; } }); }
+
+  document.title=(p.name||'新商品')+'｜新商品導入 記入用紙';
+  document.querySelector('.head .sub').textContent='アプリ「新商品導入フロー」の登録内容（印刷日 '+today+'）';
+  rq.textContent=ymd(p.reqDate); rq.removeAttribute('contenteditable'); rq.removeAttribute('title');
+  put('name', p.name); put('owner', p.owner); put('note', p.note); put('share', p.share);
+  put('client', p.client); put('retail', num(p.retail)); put('unit', num(p.unit)); put('cost', num(p.cost));
+  var u=parseFloat(p.unit), c=parseFloat(p.cost);
+  put('markup', (isFinite(u)&&u>0&&isFinite(c)) ? ((u-c)/u*100).toFixed(2) : '');
+  put('spec', p.spec); put('qty', p.qty); put('planStart', ymd(p.planStart)); put('start', ymd(p.start));
+  check('stage', p.stage||'構想中'); check('kind', p.kind||'');
+
+  document.querySelectorAll('.steps tr[data-id]').forEach(function(tr){
+    var s=(p.steps||{})[tr.getAttribute('data-id')]||{}, td=tr.children;
+    fill(td[2], s.owner); fill(td[3], ymd(s.start)); fill(td[4], ymd(s.done)); fill(td[6], s.note);
+    var sv=s.status||'未着手';
+    td[5].querySelectorAll('span').forEach(function(x){ if(x.getAttribute('data-s')===sv) x.classList.add('sel'); });
+  });
+  bar.textContent='「'+(p.name||'（タイトル未設定）')+'」の登録内容を表示しています。A4・1枚で印刷できます。';
+  if(q.get('print')==='1') setTimeout(function(){ window.print(); }, 400);
+})();
+</script>
 </body>
 </html>
