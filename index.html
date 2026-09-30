@@ -145,10 +145,8 @@
   .drawer{position:fixed;top:0;right:0;height:100vh;width:min(680px,96vw);background:var(--paper);box-shadow:var(--shadow-lg);z-index:61;transform:translateX(102%);transition:transform .26s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
   .drawer.show{transform:none}
   .dhead{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;background:var(--surface)}
-  .dhead .dhmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
-  .dhead .dtitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .dhead .dsels{display:flex;gap:8px;flex-wrap:wrap}
-  .dhead .x{align-self:flex-start}
+  .dhead .dtitle{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .infogrid .dsels{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin:0 0 4px}
   .dhead .x{margin-left:auto;border:0;background:transparent;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;display:grid;place-items:center}
   .dhead .x:hover{background:var(--surface-2);color:var(--ink)}
   .dbody{overflow:auto;padding:16px 18px 40px;flex:1}
@@ -680,10 +678,9 @@ function openDetail(id){
   d.innerHTML="";
   // head
   const head=el("div","dhead");
-  // タイトルの下に「区分」「商品ステータス」を並べる
-  const hmain=el("div","dhmain");
-  hmain.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（タイトル未設定）")}</div>`;
-  const sels=el("div","dsels"); hmain.appendChild(sels); head.appendChild(hmain);
+  head.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（タイトル未設定）")}</div>`;
+  // 「区分」「商品ステータス」は商品情報のタイトル欄の下に並べる
+  const sels=el("div","dsels");
   const kindSel=el("select","kindsel"+(p.kind?" kind-"+KIND_KEY[p.kind]:""));
   kindSel.title="商品区分（自社商品／OEM）";
   kindSel.innerHTML='<option value="">区分：未選択</option>'+KINDS.map(k=>'<option'+(k===p.kind?' selected':'')+'>'+k+'</option>').join("");
@@ -733,6 +730,7 @@ function openDetail(id){
   };
   // 並びは記入用紙に準拠：タイトル → 依頼日・営業担当 → 最新状況 → 販売先・価格・値入率 → 規格・予想出数 → 日付
   info.appendChild(F("タイトル","name","text",true));
+  info.appendChild(sels);
   info.appendChild(F("依頼日","reqDate","date"));
   info.appendChild(F("営業担当","owner","text"));
   info.appendChild(F("最新状況","note","ta",true));
