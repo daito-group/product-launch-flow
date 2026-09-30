@@ -31,7 +31,7 @@
   .info .v.unit{ text-align:right; }
   .info .v .u{ font-size:8.5pt; color:#555; margin-left:1mm; }
   .info .ttl td{ height:12mm; }
-  .info .memo td{ height:18mm; }
+  .info .memo td{ height:27mm; }   /* 最新状況：2.7cm */
   .info .memo.lg td{ height:24mm; }
   .info .chk td{ height:7.8mm; }
   .info .cbs{ display:flex; align-items:center; gap:5mm; flex-wrap:wrap; padding:0 2mm; font-size:10pt; font-weight:700; }
@@ -39,27 +39,26 @@
   .cb{ display:inline-flex; align-items:center; gap:1.6mm; white-space:nowrap; }
   .cb i{ width:4.2mm; height:4.2mm; border:1pt solid var(--ink); display:inline-block; }
 
-  .sec{ font-size:9pt; font-weight:800; letter-spacing:.06em; margin:3mm 0 1.2mm; color:var(--accent); }
+  .sec{ font-size:9pt; font-weight:800; letter-spacing:.06em; margin:2mm 0 1mm; color:var(--accent); }
 
   .steps{ table-layout:fixed; }
   .steps th{ background:var(--band); border:.6pt solid var(--line); font-size:8pt; font-weight:700; height:6.4mm; letter-spacing:.04em; }
-  .steps td{ border:.6pt solid var(--line2); height:6.8mm; font-size:9.5pt; padding:0 1.5mm; }
+  .steps td{ border:.6pt solid var(--line2); height:6.7mm; font-size:9.5pt; padding:0 1.5mm; }
   .steps td.no{ text-align:center; font-size:8.5pt; color:#444; font-variant-numeric:tabular-nums; }
   .steps td.nm{ font-weight:600; }
   .steps td.st{ text-align:center; font-size:8.5pt; color:#333; letter-spacing:.08em; white-space:nowrap; }
-  .steps tr.band td{ background:var(--band); border:.6pt solid var(--line); font-size:8.5pt; font-weight:800; height:5.6mm; color:var(--accent); letter-spacing:.06em; }
+  .steps tr.band td{ background:var(--band); border:.6pt solid var(--line); font-size:8.5pt; font-weight:800; height:5mm; color:var(--accent); letter-spacing:.06em; }
   .steps tr.band .bandn{ font-weight:600; color:#555; font-size:7.5pt; }
 
   /* アプリの登録内容を差し込んだとき */
   .cb i{ display:inline-grid; place-items:center; font-style:normal; font-size:9pt; font-weight:900; line-height:1; }
   .info .v .fill{ overflow:hidden; word-break:break-word; white-space:pre-wrap; max-height:11mm; }
   .info .memo .v{ vertical-align:top; padding-top:1.2mm; }
-  .info .memo .v .fill{ font-size:9pt; line-height:1.4; max-height:15.5mm; }
+  .info .memo .v .fill{ font-size:9pt; line-height:1.4; max-height:24.5mm; }
   .info .memo.lg .v .fill{ max-height:21.5mm; }
-  .steps td .fill{ font-size:8.5pt; line-height:1.2; max-height:6.2mm; overflow:hidden; word-break:break-word; }
+  .steps td .fill{ font-size:8.5pt; line-height:1.2; max-height:6.1mm; overflow:hidden; word-break:break-word; }
   .steps td.st span.sel{ border:1pt solid var(--ink); border-radius:50%; padding:0 .5mm; font-weight:800; }
-  .foot{ display:flex; gap:5mm; margin-top:2mm; font-size:7.5pt; color:#555; }
-  .foot .note{ flex:1; }
+  .foot{ display:flex; justify-content:flex-end; margin-top:1.5mm; font-size:7.5pt; color:#555; }
 
   @media print{
     html,body{ background:#fff; }
@@ -250,7 +249,6 @@
   </table>
 
   <div class="foot">
-    <div class="note">状況：未＝未着手／進＝進行中／完＝完了　｜　値入率＝（希望納入単価 − 目標製造原価）÷ 希望納入単価 × 100（アプリでは自動計算）</div>
     <div>daito-group.github.io/product-launch-flow/</div>
   </div>
 </div>
