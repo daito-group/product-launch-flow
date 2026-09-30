@@ -19,35 +19,34 @@
   .toolbar span{ font-size:12px; color:#555; }
 
   h1{ font-size:15pt; margin:0; letter-spacing:.04em; }
-  .head{ display:flex; align-items:flex-end; gap:8mm; border-bottom:1.6pt solid var(--ink); padding-bottom:1.8mm; }
+  .head{ display:flex; align-items:flex-end; gap:8mm; border-bottom:1.6pt solid var(--ink); padding-bottom:1.8mm; margin-bottom:2.5mm; }
   .head .sub{ font-size:8pt; color:#555; margin-top:.8mm; }
-  .head .meta{ margin-left:auto; font-size:9pt; white-space:nowrap; }
-  .head .meta u{ display:inline-block; min-width:24mm; border-bottom:.6pt solid var(--line); text-decoration:none; }
-
-  .status{ display:flex; align-items:center; gap:5.5mm; margin:2.5mm 0 3mm; font-size:10pt; font-weight:700; flex-wrap:wrap; }
-  .status .lbl{ font-size:8.5pt; color:#555; font-weight:700; letter-spacing:.06em; min-width:22mm; }
-  .status.kind{ margin-top:-1.2mm; }
-  .status .hint{ font-size:7.5pt; color:#777; font-weight:600; }
-  .cb{ display:inline-flex; align-items:center; gap:1.6mm; font-weight:700; white-space:nowrap; }
-  .cb i{ width:4.2mm; height:4.2mm; border:1pt solid var(--ink); display:inline-block; }
+  .head .meta{ margin-left:auto; font-size:9.5pt; font-weight:700; white-space:nowrap; }
+  .head .meta u{ display:inline-block; min-width:34mm; border-bottom:.6pt solid var(--line); text-decoration:none; }
 
   table{ width:100%; border-collapse:collapse; }
-  .info td{ border:.6pt solid var(--line2); padding:0; height:9.5mm; }
+  .info td{ border:.6pt solid var(--line2); padding:0; height:8.5mm; }
   .info .k{ width:26mm; background:var(--band); font-size:8.5pt; font-weight:700; padding:0 2mm; white-space:nowrap; }
   .info .v{ padding:0 2mm; font-size:10pt; }
   .info .v.unit{ text-align:right; }
   .info .v .u{ font-size:8.5pt; color:#555; margin-left:1mm; }
-  .info .memo .k, .info .memo .v{ height:17mm; }
+  .info .ttl td{ height:14mm; }
+  .info .memo td{ height:28mm; }
+  .info .chk td{ height:7.8mm; }
+  .info .cbs{ display:flex; align-items:center; gap:5mm; flex-wrap:wrap; padding:0 2mm; font-size:10pt; font-weight:700; }
+  .info .hint{ font-size:7.5pt; color:#777; font-weight:600; }
+  .cb{ display:inline-flex; align-items:center; gap:1.6mm; white-space:nowrap; }
+  .cb i{ width:4.2mm; height:4.2mm; border:1pt solid var(--ink); display:inline-block; }
 
-  .sec{ font-size:9pt; font-weight:800; letter-spacing:.06em; margin:3.5mm 0 1.2mm; color:var(--accent); }
+  .sec{ font-size:9pt; font-weight:800; letter-spacing:.06em; margin:3mm 0 1.2mm; color:var(--accent); }
 
   .steps{ table-layout:fixed; }
-  .steps th{ background:var(--band); border:.6pt solid var(--line); font-size:8pt; font-weight:700; height:6.6mm; letter-spacing:.04em; }
-  .steps td{ border:.6pt solid var(--line2); height:8mm; font-size:9.5pt; padding:0 1.5mm; }
+  .steps th{ background:var(--band); border:.6pt solid var(--line); font-size:8pt; font-weight:700; height:6.4mm; letter-spacing:.04em; }
+  .steps td{ border:.6pt solid var(--line2); height:7.3mm; font-size:9.5pt; padding:0 1.5mm; }
   .steps td.no{ text-align:center; font-size:8.5pt; color:#444; font-variant-numeric:tabular-nums; }
   .steps td.nm{ font-weight:600; }
   .steps td.st{ text-align:center; font-size:8.5pt; color:#333; letter-spacing:.08em; white-space:nowrap; }
-  .steps tr.band td{ background:var(--band); border:.6pt solid var(--line); font-size:8.5pt; font-weight:800; height:5.8mm; color:var(--accent); letter-spacing:.06em; }
+  .steps tr.band td{ background:var(--band); border:.6pt solid var(--line); font-size:8.5pt; font-weight:800; height:5.6mm; color:var(--accent); letter-spacing:.06em; }
   .steps tr.band .bandn{ font-weight:600; color:#555; font-size:7.5pt; }
 
   .foot{ display:flex; gap:5mm; margin-top:2mm; font-size:7.5pt; color:#555; }
@@ -73,29 +72,22 @@
       <h1>新商品導入 記入用紙</h1>
       <div class="sub">1商品につき1枚。記入後はアプリ「新商品導入フロー」に入力してください。</div>
     </div>
-    <div class="meta">記入日 <u></u>　記入者 <u></u></div>
-  </div>
-
-  <div class="status">
-    <span class="lbl">商品ステータス</span>
-    <label class="cb"><i></i>構想中</label>
-    <label class="cb"><i></i>提案中</label>
-    <label class="cb"><i></i>サンプル依頼</label>
-    <label class="cb"><i></i>採用</label>
-    <label class="cb"><i></i>不採用</label>
-  </div>
-
-  <div class="status kind">
-    <span class="lbl">商品区分</span>
-    <label class="cb"><i></i>自社商品</label>
-    <label class="cb"><i></i>OEM</label>
-    <span class="hint">※どちらか一方にチェック</span>
+    <div class="meta">依頼日 <u></u></div>
   </div>
 
   <table class="info">
-    <tr>
-      <td class="k">商品名</td><td class="v" colspan="3"></td>
+    <tr class="ttl">
+      <td class="k">タイトル</td><td class="v" colspan="3"></td>
       <td class="k">営業担当</td><td class="v"></td>
+    </tr>
+    <tr class="chk">
+      <td class="k">商品ステータス</td><td colspan="5"><div class="cbs"><label class="cb"><i></i>構想中</label><label class="cb"><i></i>提案中</label><label class="cb"><i></i>サンプル依頼</label><label class="cb"><i></i>採用</label><label class="cb"><i></i>不採用</label></div></td>
+    </tr>
+    <tr class="memo">
+      <td class="k">最新状況</td><td class="v" colspan="5"></td>
+    </tr>
+    <tr class="chk">
+      <td class="k">商品区分</td><td colspan="5"><div class="cbs"><label class="cb"><i></i>自社商品</label><label class="cb"><i></i>OEM</label><span class="hint">※どちらか一方にチェック</span></div></td>
     </tr>
     <tr>
       <td class="k">想定販売先</td><td class="v" colspan="3"></td>
@@ -112,9 +104,6 @@
     <tr>
       <td class="k">企画開始日</td><td class="v" colspan="2"></td>
       <td class="k">販売開始日</td><td class="v" colspan="2"></td>
-    </tr>
-    <tr class="memo">
-      <td class="k">最新状況</td><td class="v" colspan="5"></td>
     </tr>
   </table>
 

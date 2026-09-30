@@ -158,6 +158,9 @@
   .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   /* 情報フォームの入力文字は右詰（メモ欄textareaは除く） */
   .infogrid input{text-align:right}
+  /* 記入用紙に合わせ、タイトルは大きく・最新状況は高く */
+  .field.ttl input{font-size:16px;font-weight:800;padding:10px 12px}
+  .field.memo textarea{min-height:130px;line-height:1.6}
   /* 単位つきフィールド（円・％） */
   .field .uwrap{display:flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:7px 9px;transition:.14s}
   .field .uwrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
@@ -284,7 +287,7 @@
   </div>
   <div class="kpis" id="kpis"></div>
   <div class="toolbar">
-    <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="商品名・販売先・営業・区分で検索…"></div>
+    <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="タイトル・販売先・営業・区分で検索…"></div>
     <select class="f" id="fPhase"><option value="">全フェーズ</option></select>
     <select class="f" id="fSort"><option value="recent">新しい順</option><option value="progress">進捗が高い順</option><option value="progress_asc">進捗が低い順</option><option value="start">販売開始日が近い順</option></select>
   </div>
@@ -373,7 +376,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
 
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
-  return Object.assign({id:uid(),name:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+(SETTLED.includes((p.steps[s.no]||{}).status)?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -417,7 +420,7 @@ const isConnected=()=>!!(conn.url&&conn.token);
 const clone=o=>JSON.parse(JSON.stringify(o));
 function canon(o){ if(Array.isArray(o)) return "["+o.map(canon).join(",")+"]"; if(o&&typeof o==="object") return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}"; return JSON.stringify(o===undefined?null:o); }
 const same=(a,b)=>canon(a)===canon(b);
-const PDEF={name:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:""};
+const PDEF={name:"",reqDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",planStart:"",start:"",note:""};
 const SDEF={status:"未着手",start:"",done:"",note:"",owner:""};
 const bval=(o,k,def)=> (o && k in o) ? o[k] : (def && k in def ? def[k] : undefined);
 /* 既定値のままの欄・工程を除いた「中身」（画面を開いただけで生じる差分を変更扱いしないため） */
@@ -569,14 +572,14 @@ async function pushToServer(keepalive){
 /* この端末だけに保存されている商品を共有データへ追加（共有データ側の内容は消さない） */
 const SEED_NAMES=["サンプル商品（削除できます）","減塩和風ドレッシング（200ml）","（例）減塩和風ドレッシング（200ml）"];
 const isSeed=p=>SEED_NAMES.includes(p.name||"");
-const isBlank=p=>!p.name && !["kind","owner","client","retail","unit","cost","spec","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
+const isBlank=p=>!p.name && !["reqDate","kind","owner","client","retail","unit","cost","spec","planStart","start","note"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
 function localOnly(snap){ const inRemote=new Set(((baseState&&baseState.products)||[]).map(p=>p.id)); return ((snap&&snap.products)||[]).filter(p=>!inRemote.has(p.id)&&!isSeed(p)&&!isBlank(p)); }
 function addLocalOnly(snap){ const extra=localOnly(snap), inState=new Set(state.products.map(p=>p.id)); extra.forEach(p=>{ if(!inState.has(p.id)) state.products.push(clone(p)); }); return extra.length; }
 function offerLocalUpload(snap){
   const extra=localOnly(snap);
   if(!extra.length) return;
   try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(snap)); }catch(e){}
-  const names=extra.map(p=>"・"+(p.name||"（商品名未設定）")).join("\n");
+  const names=extra.map(p=>"・"+(p.name||"（タイトル未設定）")).join("\n");
   if(!confirm("この端末だけに保存されていた商品が"+extra.length+"件あります。\n"+names+"\n\n共有データに追加して、全員が見られるようにしますか？")) return;
   addLocalOnly(snap); saveLocal(); safeRender(); schedulePush(); toast(extra.length+"件を共有データに追加しました");
 }
@@ -634,7 +637,7 @@ function card(p){
   c.innerHTML=`
     <div class="pc-top">
       <div style="min-width:0">
-        <h3>${esc(p.name||"（商品名未設定）")}</h3>
+        <h3>${esc(p.name||"（タイトル未設定）")}</h3>
         <div class="pmeta">${p.kind?`<span class="kindtag kt-${KIND_KEY[p.kind]||""}">${esc(p.kind)}</span>`:""}${p.client?`<span>${esc(p.client)}</span>`:""}${p.owner?`<span>営業 ${esc(p.owner)}</span>`:""}${p.start?`<span>販売開始 ${esc(p.start)}</span>`:""}</div>
       </div>
       <div class="pc-topright">
@@ -671,7 +674,7 @@ function openDetail(id){
   d.innerHTML="";
   // head
   const head=el("div","dhead");
-  head.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（商品名未設定）")}</div>`;
+  head.innerHTML=`<div class="dtitle" style="font-weight:800;font-size:15px">${esc(p.name||"（タイトル未設定）")}</div>`;
   const kindSel=el("select","kindsel"+(p.kind?" kind-"+KIND_KEY[p.kind]:""));
   kindSel.title="商品区分（自社商品／OEM）";
   kindSel.innerHTML='<option value="">区分：未選択</option>'+KINDS.map(k=>'<option'+(k===p.kind?' selected':'')+'>'+k+'</option>').join("");
@@ -693,11 +696,13 @@ function openDetail(id){
   const F=(label,key,type,full,unit,after)=>{
     const f=el("div","field"+(full?" full":"")); f.innerHTML=`<label>${label}</label>`;
     const inp=el(type==="ta"?"textarea":"input");
+    if(key==="name") f.classList.add("ttl");
+    if(key==="note"){ f.classList.add("memo"); inp.rows=6; }
     if(type==="date") inp.type="date"; else if(type!=="ta") inp.type="text";
     if(unit) inp.setAttribute("inputmode","decimal");
     inp.value=p[key]||"";
-    // 入力を即時に反映（ヘッダーの商品名も追従）
-    inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.firstChild.textContent=p.name||"（商品名未設定）"; if(after) after(); });
+    // 入力を即時に反映（ヘッダーのタイトルも追従）
+    inp.addEventListener("input",()=>{ p[key]=inp.value; if(key==="name") head.firstChild.textContent=p.name||"（タイトル未設定）"; if(after) after(); });
     // 確定時（フォーカスを外したとき）に保存し、一覧カードへ反映
     inp.addEventListener("change",()=>{ p[key]=inp.value; if(after) after(); persist(); render(); });
     if(unit){ const w=el("div","uwrap"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:unit})); f.appendChild(w); }
@@ -716,8 +721,11 @@ function openDetail(id){
     const w=el("div","uwrap auto"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:"％"}));
     f.appendChild(w); return f;
   };
-  info.appendChild(F("商品名","name","text"));
+  // 並びは記入用紙に準拠：タイトル → 依頼日・営業担当 → 最新状況 → 販売先・価格 → 規格・値入率 → 日付
+  info.appendChild(F("タイトル","name","text",true));
+  info.appendChild(F("依頼日","reqDate","date"));
   info.appendChild(F("営業担当","owner","text"));
+  info.appendChild(F("最新状況","note","ta",true));
   info.appendChild(F("想定販売先","client","text"));
   info.appendChild(F("希望小売価格","retail","text",false,"円"));
   info.appendChild(F("希望納入単価","unit","text",false,"円",refreshMarkup));
@@ -726,7 +734,6 @@ function openDetail(id){
   info.appendChild(markupField());
   info.appendChild(F("企画開始日","planStart","date"));
   info.appendChild(F("販売開始日","start","date"));
-  info.appendChild(F("最新状況","note","ta",true));
   body.appendChild(info);
 
   // サマリー
