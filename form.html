@@ -30,8 +30,9 @@
   .info .v{ padding:0 2mm; font-size:10pt; }
   .info .v.unit{ text-align:right; }
   .info .v .u{ font-size:8.5pt; color:#555; margin-left:1mm; }
-  .info .ttl td{ height:14mm; }
-  .info .memo td{ height:28mm; }
+  .info .ttl td{ height:12mm; }
+  .info .memo td{ height:18mm; }
+  .info .memo.lg td{ height:24mm; }
   .info .chk td{ height:7.8mm; }
   .info .cbs{ display:flex; align-items:center; gap:5mm; flex-wrap:wrap; padding:0 2mm; font-size:10pt; font-weight:700; }
   .info .hint{ font-size:7.5pt; color:#777; font-weight:600; }
@@ -42,7 +43,7 @@
 
   .steps{ table-layout:fixed; }
   .steps th{ background:var(--band); border:.6pt solid var(--line); font-size:8pt; font-weight:700; height:6.4mm; letter-spacing:.04em; }
-  .steps td{ border:.6pt solid var(--line2); height:7.3mm; font-size:9.5pt; padding:0 1.5mm; }
+  .steps td{ border:.6pt solid var(--line2); height:6.8mm; font-size:9.5pt; padding:0 1.5mm; }
   .steps td.no{ text-align:center; font-size:8.5pt; color:#444; font-variant-numeric:tabular-nums; }
   .steps td.nm{ font-weight:600; }
   .steps td.st{ text-align:center; font-size:8.5pt; color:#333; letter-spacing:.08em; white-space:nowrap; }
@@ -89,6 +90,9 @@
     </tr>
     <tr class="memo">
       <td class="k">最新状況</td><td class="v" colspan="5"></td>
+    </tr>
+    <tr class="memo lg">
+      <td class="k">共有情報</td><td class="v" colspan="5"></td>
     </tr>
     <tr class="chk">
       <td class="k">商品区分</td><td colspan="5"><div class="cbs"><label class="cb"><i></i>自社商品</label><label class="cb"><i></i>OEM</label><span class="hint">※どちらか一方にチェック</span></div></td>
