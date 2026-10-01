@@ -21,8 +21,8 @@
   h1{ font-size:15pt; margin:0; letter-spacing:.04em; }
   .head{ display:flex; align-items:flex-end; gap:8mm; border-bottom:1.6pt solid var(--ink); padding-bottom:1.8mm; margin-bottom:2.5mm; }
   .head .sub{ font-size:8pt; color:#555; margin-top:.8mm; }
-  .head .meta{ margin-left:auto; font-size:9.5pt; font-weight:700; white-space:nowrap; }
-  .head .meta u{ display:inline-block; min-width:34mm; border-bottom:.6pt solid var(--line); text-decoration:none; text-align:center; font-weight:600; outline:none; }
+  .head .meta{ margin-left:auto; font-size:13pt; font-weight:800; white-space:nowrap; }
+  .head .meta u{ display:inline-block; min-width:44mm; border-bottom:.6pt solid var(--line); text-decoration:none; text-align:center; font-weight:600; outline:none; }
 
   table{ width:100%; border-collapse:collapse; }
   .info td{ border:.6pt solid var(--line2); padding:0; height:8.5mm; }
@@ -81,7 +81,7 @@
       <h1>新商品導入 記入用紙</h1>
       <div class="sub">1商品につき1枚。記入後はアプリ「新商品導入フロー」に入力してください。</div>
     </div>
-    <div class="meta">依頼日 <u id="reqDate" contenteditable="true" title="記入日（開いた日）が入ります。クリックして書き換えできます"></u></div>
+    <div class="meta">導入予定日 <u id="introDate" contenteditable="true" title="クリックして入力できます"></u></div>
   </div>
 
   <table class="info">
@@ -115,7 +115,7 @@
       <td class="k">予想出数</td><td class="v" data-k="qty" colspan="2"></td>
     </tr>
     <tr>
-      <td class="k">企画開始日</td><td class="v" data-k="planStart" colspan="2"></td>
+      <td class="k">依頼日</td><td class="v" data-k="reqDate" colspan="2"></td>
       <td class="k">販売開始日</td><td class="v" data-k="start" colspan="2"></td>
     </tr>
   </table>
@@ -267,13 +267,15 @@
 (function(){
   function pad(n){ return String(n).padStart(2,'0'); }
   var d=new Date(), today=d.getFullYear()+'/'+pad(d.getMonth()+1)+'/'+pad(d.getDate());
-  var rq=document.getElementById('reqDate');
+  var intro=document.getElementById('introDate');
+  var rq=document.querySelector('[data-k="reqDate"]');
   var q=new URLSearchParams(location.search), id=q.get('id');
-  if(!id){ rq.textContent=today; return; }
+  // 白紙：依頼日＝記入日（開いた日）。クリックで書き換え可
+  if(!id){ rq.textContent=today; rq.setAttribute('contenteditable','true'); rq.title='記入日（開いた日）が入ります。クリックして書き換えできます'; return; }
   var st=null; try{ st=JSON.parse(localStorage.getItem('shinshohin-donyu-v1')); }catch(e){}
   var p=(st&&st.products||[]).filter(function(x){ return x.id===id; })[0];
   var bar=document.querySelector('.toolbar span');
-  if(!p){ bar.textContent='商品データが見つかりませんでした。アプリの詳細画面から「印刷」を押し直してください。'; rq.textContent=''; return; }
+  if(!p){ bar.textContent='商品データが見つかりませんでした。アプリの詳細画面から「印刷」を押し直してください。'; return; }
   function ymd(v){ return v ? String(v).split('-').join('/') : ''; }
   function num(v){ var t=String(v==null?'':v).trim(); if(/^[0-9]+([.][0-9]+)?$/.test(t)) return Number(t).toLocaleString('ja-JP'); return t; }
   function fill(el, v){ if(!el || v==null || v==='') return; var f=document.createElement('div'); f.className='fill'; f.textContent=v; var u=el.querySelector('.u'); if(u){ f.style.display='inline'; el.insertBefore(f,u); } else el.appendChild(f); }
@@ -282,12 +284,12 @@
 
   document.title=(p.name||'新商品')+'｜新商品導入 記入用紙';
   document.querySelector('.head .sub').textContent='アプリ「新商品導入フロー」の登録内容（印刷日 '+today+'）';
-  rq.textContent=ymd(p.reqDate); rq.removeAttribute('contenteditable'); rq.removeAttribute('title');
+  intro.textContent=ymd(p.introDate); intro.removeAttribute('contenteditable'); intro.removeAttribute('title');
   put('name', p.name); put('owner', p.owner); put('note', p.note); put('share', p.share);
   put('client', p.client); put('retail', num(p.retail)); put('unit', num(p.unit)); put('cost', num(p.cost));
   var u=parseFloat(p.unit), c=parseFloat(p.cost);
   put('markup', (isFinite(u)&&u>0&&isFinite(c)) ? ((u-c)/u*100).toFixed(2) : '');
-  put('spec', p.spec); put('qty', p.qty); put('planStart', ymd(p.planStart)); put('start', ymd(p.start));
+  put('spec', p.spec); put('qty', p.qty); put('reqDate', ymd(p.reqDate)); put('start', ymd(p.start));
   check('stage', p.stage||'構想中'); check('kind', p.kind||'');
 
   document.querySelectorAll('.steps tr[data-id]').forEach(function(tr){
