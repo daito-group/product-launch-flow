@@ -90,7 +90,7 @@
       <td class="k">営業担当</td><td class="v" data-k="owner"></td>
     </tr>
     <tr class="chk">
-      <td class="k">商品ステータス</td><td colspan="5"><div class="cbs" data-g="stage"><label class="cb" data-v="構想中"><i></i>構想中</label><label class="cb" data-v="提案中"><i></i>提案中</label><label class="cb" data-v="サンプル依頼"><i></i>サンプル依頼</label><label class="cb" data-v="採用"><i></i>採用</label><label class="cb" data-v="不採用"><i></i>不採用</label></div></td>
+      <td class="k">商品ステータス</td><td colspan="5"><div class="cbs" data-g="stage"><label class="cb" data-v="構想中"><i></i>構想中</label><label class="cb" data-v="提案中"><i></i>提案中</label><label class="cb" data-v="サンプル依頼"><i></i>サンプル依頼</label><label class="cb" data-v="採用"><i></i>採用</label><label class="cb" data-v="不採用"><i></i>不採用</label><label class="cb" data-v="保留"><i></i>保留</label></div></td>
     </tr>
     <tr class="memo">
       <td class="k">最新状況</td><td class="v" data-k="note" colspan="5"></td>
@@ -284,7 +284,8 @@
 
   document.title=(p.name||'新商品')+'｜新商品導入 記入用紙';
   document.querySelector('.head .sub').textContent='アプリ「新商品導入フロー」の登録内容（印刷日 '+today+'）';
-  nextAct.textContent=p.nextAction||''; nextAct.removeAttribute('contenteditable'); nextAct.removeAttribute('title');
+  var nd=p.nextDate ? (+p.nextDate.slice(5,7))+'/'+(+p.nextDate.slice(8,10))+' ' : '';
+  nextAct.textContent=(nd+(p.nextAction||'')).trim(); nextAct.removeAttribute('contenteditable'); nextAct.removeAttribute('title');
   // 7.5cm の欄に1行で収まるまで文字を小さくする（9pt まで）。それでも長ければ 8.5pt で2行に折り返す
   for(var fz=10.5; fz>=9 && nextAct.scrollWidth>nextAct.clientWidth; fz-=0.5) nextAct.style.fontSize=fz+'pt';
   if(nextAct.scrollWidth>nextAct.clientWidth){ nextAct.style.fontSize='8.5pt'; nextAct.classList.add('wrap'); }

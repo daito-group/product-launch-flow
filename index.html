@@ -80,6 +80,11 @@
   .search{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:7px 11px;min-width:220px;flex:1;max-width:340px}
   .search input{border:0;outline:0;background:transparent;width:100%}
   .search .icon{color:var(--muted);flex:none}
+  /* 商品ステータスのタブ（一覧） */
+  .stabs{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:3px}
+  .stabs button{border:0;background:transparent;border-radius:6px;padding:5px 12px;font:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .stabs button .n{font-size:11px;font-weight:600;margin-left:4px;opacity:.8}
+  .stabs button.on{background:var(--surface);color:var(--accent-ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
   select.f{border:1px solid var(--line-strong);background:var(--surface);border-radius:var(--radius-sm);padding:7px 11px;font-weight:600;cursor:pointer}
 
   /* product cards */
@@ -88,6 +93,9 @@
   .pcard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
   .pcard .pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
   .pcard h3{margin:0;font-size:15.5px;font-weight:800;line-height:1.35}
+  .pcard .pnext{font-size:12px;margin-top:5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pcard .pnext b{font-weight:800;color:var(--accent-ink);margin-right:6px}
+  .pcard .pnext.over b{color:var(--bad)}
   .pcard .pmeta{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:3px}
   .pcard .cmemo{margin-top:2px}
   .pcard .cmemo label{display:block;font-size:10px;color:var(--faint);font-weight:700;margin-bottom:3px;letter-spacing:.04em}
@@ -106,6 +114,7 @@
   .sp-sample{color:var(--sample);border-color:var(--sample);background:var(--sample-bg)}
   .sp-adopt{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
   .sp-reject{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
+  .sp-hold{color:var(--ink-soft);border-color:var(--ink-soft);border-style:dashed;background:var(--surface)}
   /* 不採用の商品は一覧でグレー表示 */
   .pcard.rejected{background:var(--surface-2)}
   .pcard.rejected h3,.pcard.rejected .pct,.pcard.rejected .pmeta{color:var(--muted)}
@@ -125,6 +134,7 @@
   .kindtag.kt-oem{color:var(--gate);border-color:var(--gate);background:var(--gate-soft)}
   .stagesel.stage-adopt{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
   .stagesel.stage-reject{color:var(--muted);border-color:var(--line-strong);background:var(--surface-2)}
+  .stagesel.stage-hold{color:var(--ink-soft);border-color:var(--ink-soft);border-style:dashed;background:var(--surface)}
   .phasetag.done{background:var(--ok-bg);color:var(--ok)}
   .bar{height:8px;border-radius:6px;background:var(--surface-3);overflow:hidden}
   .bar>i{display:block;height:100%;border-radius:6px;background:var(--accent);transition:width .3s}
@@ -160,7 +170,10 @@
   /* 情報フォームの入力文字は右詰（メモ欄textareaは除く） */
   .infogrid input{text-align:right}
   /* 記入用紙に合わせ、タイトルは大きく・最新状況は高く */
-  .field.ltext input{text-align:left}   /* 文章で入れる欄は左寄せ */
+  .field.ltext input{text-align:left}
+  .nextrow{display:grid;grid-template-columns:170px 1fr;gap:8px}
+  .nextrow input[type=date]{text-align:right}
+  @media (max-width:520px){ .nextrow{grid-template-columns:1fr} }   /* 文章で入れる欄は左寄せ */
   .field.ttl input{font-size:16px;font-weight:800;padding:10px 12px}
   .field.memo textarea{min-height:90px;line-height:1.6}
   .field.memo.lg textarea{min-height:130px}
@@ -295,8 +308,8 @@
   <div class="kpis" id="kpis"></div>
   <div class="toolbar">
     <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><input id="q" placeholder="タイトル・販売先・営業・区分で検索…"></div>
-    <select class="f" id="fPhase"><option value="">全フェーズ</option></select>
-    <select class="f" id="fSort"><option value="recent">新しい順</option><option value="progress">進捗が高い順</option><option value="progress_asc">進捗が低い順</option><option value="start">販売開始日が近い順</option></select>
+    <select class="f" id="fSort"><option value="next">次回アクションが早い順</option><option value="recent">新しい順</option><option value="progress">進捗が高い順</option><option value="progress_asc">進捗が低い順</option><option value="start">販売開始日が近い順</option></select>
+    <div class="stabs" id="fTabs" role="tablist"></div>
   </div>
   <div id="view"></div>
 </div>
@@ -369,8 +382,10 @@ const TOTAL = STEP_LIST.length;   // 16
 const STATUSES = ["未着手","進行中","完了","なし"];   // なし＝この商品では行わない工程
 const STAT_CLASS = {"完了":"st-done","進行中":"st-prog","未着手":"","なし":"st-skip"};
 const SETTLED = ["完了","なし"];   // 進捗・フェーズ判定で「処理済み」とみなす
-const STAGES = ["構想中","提案中","サンプル依頼","採用","不採用"];   // 商品ステータス
-const STAGE_KEY = {"構想中":"idea","提案中":"prop","サンプル依頼":"sample","採用":"adopt","不採用":"reject"};
+const STAGES = ["構想中","提案中","サンプル依頼","採用","不採用","保留"];   // 商品ステータス
+const STAGE_KEY = {"構想中":"idea","提案中":"prop","サンプル依頼":"sample","採用":"adopt","不採用":"reject","保留":"hold"};
+// 一覧のタブ。進行中＝構想中・提案中・サンプル依頼
+const TABS = [["active","進行中",["構想中","提案中","サンプル依頼"]],["adopt","採用",["採用"]],["reject","不採用",["不採用"]],["hold","保留",["保留"]]];
 const KINDS = ["自社商品","OEM"];   // 商品区分
 const KIND_KEY = {"自社商品":"own","OEM":"oem"};
 
@@ -386,7 +401,7 @@ function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show")
 function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function newProduct(seed){
   const steps={}; STEP_LIST.forEach(s=>steps[s.no]={status:"未着手",start:"",done:"",note:"",owner:""});
-  return Object.assign({id:uid(),name:"",reqDate:"",introDate:"",nextAction:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",share:"",steps,createdAt:Date.now()}, seed||{});
+  return Object.assign({id:uid(),name:"",reqDate:"",introDate:"",nextAction:"",nextDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",share:"",steps,createdAt:Date.now()}, seed||{});
 }
 function completed(p){ return STEP_LIST.reduce((n,s)=>n+(SETTLED.includes((p.steps[s.no]||{}).status)?1:0),0); }
 function progress(p){ return Math.round(completed(p)/TOTAL*100); }
@@ -430,7 +445,7 @@ const isConnected=()=>!!(conn.url&&conn.token);
 const clone=o=>JSON.parse(JSON.stringify(o));
 function canon(o){ if(Array.isArray(o)) return "["+o.map(canon).join(",")+"]"; if(o&&typeof o==="object") return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+canon(o[k])).join(",")+"}"; return JSON.stringify(o===undefined?null:o); }
 const same=(a,b)=>canon(a)===canon(b);
-const PDEF={name:"",reqDate:"",introDate:"",nextAction:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",share:""};
+const PDEF={name:"",reqDate:"",introDate:"",nextAction:"",nextDate:"",stage:"構想中",kind:"",owner:"",client:"",retail:"",unit:"",cost:"",markup:"",spec:"",qty:"",planStart:"",start:"",note:"",share:""};
 const SDEF={status:"未着手",start:"",done:"",note:"",owner:""};
 const bval=(o,k,def)=> (o && k in o) ? o[k] : (def && k in def ? def[k] : undefined);
 /* 既定値のままの欄・工程を除いた「中身」（画面を開いただけで生じる差分を変更扱いしないため） */
@@ -582,7 +597,7 @@ async function pushToServer(keepalive){
 /* この端末だけに保存されている商品を共有データへ追加（共有データ側の内容は消さない） */
 const SEED_NAMES=["サンプル商品（削除できます）","減塩和風ドレッシング（200ml）","（例）減塩和風ドレッシング（200ml）"];
 const isSeed=p=>SEED_NAMES.includes(p.name||"");
-const isBlank=p=>!p.name && !["introDate","nextAction","kind","owner","client","retail","unit","cost","spec","qty","planStart","start","note","share"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
+const isBlank=p=>!p.name && !["introDate","nextAction","nextDate","kind","owner","client","retail","unit","cost","spec","qty","planStart","start","note","share"].some(k=>p[k]) && !Object.values(p.steps||{}).some(v=>v&&((v.status&&v.status!=="未着手")||v.owner||v.start||v.done||v.note));
 function localOnly(snap){ const inRemote=new Set(((baseState&&baseState.products)||[]).map(p=>p.id)); return ((snap&&snap.products)||[]).filter(p=>!inRemote.has(p.id)&&!isSeed(p)&&!isBlank(p)); }
 function addLocalOnly(snap){ const extra=localOnly(snap), inState=new Set(state.products.map(p=>p.id)); extra.forEach(p=>{ if(!inState.has(p.id)) state.products.push(clone(p)); }); return extra.length; }
 function offerLocalUpload(snap){
@@ -598,7 +613,7 @@ function closeSync(){ $("#mscrim").classList.remove("show"); $("#syncModal").cla
 function sStatus(kind,msg){ const s=$("#s_status"); s.className="s-status "+(kind||""); s.textContent=msg; }
 
 /* ======================= 描画 ======================= */
-let filter={q:"",phase:"",sort:"recent"};
+let filter={q:"",tab:"active",sort:"next"};
 function render(){
   // KPI
   const ps=state.products;
@@ -615,23 +630,24 @@ function render(){
   ];
   $("#kpis").innerHTML=kpi.map(k=>`<div class="kpi" style="--k:var(${k[0]})"><div class="n">${k[1]}</div><div class="l">${k[2]}</div></div>`).join("");
 
-  // フェーズフィルタ options
-  const fp=$("#fPhase"); const cur=fp.value;
-  fp.innerHTML='<option value="">全フェーズ</option>'+PHASES.map(p=>`<option value="${p.name}">${esc(p.name)}</option>`).join("")+'<option value="完了">完了</option>';
-  fp.value=cur;
+  // 商品ステータスのタブ（件数つき）
+  const inTab=(p,t)=>{ const def=TABS.find(x=>x[0]===t); return def? def[2].includes(p.stage||"構想中") : true; };
+  $("#fTabs").innerHTML=TABS.map(([k,label])=>`<button type="button" role="tab" data-tab="${k}" class="${filter.tab===k?"on":""}" aria-selected="${filter.tab===k}">${label}<span class="n">${ps.filter(p=>inTab(p,k)).length}</span></button>`).join("");
 
   // list
   let list=ps.slice();
   if(filter.q){ const q=filter.q.toLowerCase(); list=list.filter(p=>((p.name||"")+(p.client||"")+(p.owner||"")+(p.kind||"")).toLowerCase().includes(q)); }
-  if(filter.phase){ list=list.filter(p=>currentPhase(p)===filter.phase); }
-  if(filter.sort==="recent") list.sort((a,b)=>b.createdAt-a.createdAt);
+  list=list.filter(p=>inTab(p,filter.tab));
+  // 次回アクションの日付が早い順（日付なしは後ろ、同じ日付は新しい順）
+  if(filter.sort==="next") list.sort((a,b)=>(a.nextDate||"9999").localeCompare(b.nextDate||"9999") || b.createdAt-a.createdAt);
+  else if(filter.sort==="recent") list.sort((a,b)=>b.createdAt-a.createdAt);
   else if(filter.sort==="progress") list.sort((a,b)=>progress(b)-progress(a));
   else if(filter.sort==="progress_asc") list.sort((a,b)=>progress(a)-progress(b));
   else if(filter.sort==="start") list.sort((a,b)=>(a.start||"9999").localeCompare(b.start||"9999"));
 
   const view=$("#view");
   if(!list.length){
-    view.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div>${ps.length?"該当する商品がありません":"右上の「新規商品」から登録してください"}</div></div>`;
+    view.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div>${ps.length?(filter.q?"該当する商品がありません":"このタブの商品はありません"):"右上の「新規商品」から登録してください"}</div></div>`;
     return;
   }
   const g=el("div","grid");
@@ -649,6 +665,7 @@ function card(p){
       <div style="min-width:0">
         <h3>${esc(p.name||"（タイトル未設定）")}</h3>
         <div class="pmeta">${p.kind?`<span class="kindtag kt-${KIND_KEY[p.kind]||""}">${esc(p.kind)}</span>`:""}${p.client?`<span>${esc(p.client)}</span>`:""}${p.owner?`<span>営業 ${esc(p.owner)}</span>`:""}${p.start?`<span>販売開始 ${esc(p.start)}</span>`:""}</div>
+        ${(p.nextDate||p.nextAction)?`<div class="pnext${p.nextDate&&p.nextDate<todayStr()?" over":""}" title="次回アクション"><b>次回 ${p.nextDate?esc(p.nextDate.slice(5).replace("-","/")):"日付未定"}</b>${esc(p.nextAction||"")}</div>`:""}
       </div>
       <div class="pc-topright">
         <span class="stagepill sp-${STAGE_KEY[stage]}">${esc(stage)}</span>
@@ -735,12 +752,23 @@ function openDetail(id){
     const w=el("div","uwrap auto"); w.appendChild(inp); w.appendChild(Object.assign(el("span","unit"),{textContent:"％"}));
     f.appendChild(w); return f;
   };
+  // 次回アクション：日付（一覧の並び順に使う）と内容を1行に
+  const nextField=()=>{
+    const f=el("div","field full ltext"); f.innerHTML="<label>次回アクション（日付・内容）</label>";
+    const w=el("div","nextrow");
+    const d=el("input"); d.type="date"; d.value=p.nextDate||""; d.title="次回アクションの日付（一覧はこの日付が早い順）";
+    const t=el("input"); t.type="text"; t.value=p.nextAction||""; t.placeholder="例：サンプルを持参して試食";
+    d.addEventListener("change",()=>{ p.nextDate=d.value; persist(); render(); });
+    t.addEventListener("input",()=>{ p.nextAction=t.value; });
+    t.addEventListener("change",()=>{ p.nextAction=t.value; persist(); render(); });
+    w.appendChild(d); w.appendChild(t); f.appendChild(w); return f;
+  };
   // 並びは記入用紙に準拠：タイトル → 依頼日・営業担当 → 最新状況 → 販売先・価格・値入率 → 規格・予想出数 → 日付
   info.appendChild(F("タイトル","name","text",true));
   info.appendChild(sels);
   info.appendChild(F("依頼日","reqDate","date"));
   info.appendChild(F("導入希望日","introDate","date"));
-  info.appendChild(F("次回アクション","nextAction","text",true));   // 印刷用紙の右上に出る
+  info.appendChild(nextField());   // 次回アクション（日付＋内容）。印刷用紙の右上に出る
   info.appendChild(F("営業担当","owner","text",true));
   info.appendChild(F("最新状況","note","ta",true));
   info.appendChild(F("共有情報","share","ta",true));
@@ -846,7 +874,7 @@ $("#btnImport").addEventListener("click",()=>$("#fileInput").click());
 $("#fileInput").addEventListener("change",e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=""; });
 $("#btnTheme").addEventListener("click",()=>{ const cur=document.documentElement.getAttribute("data-theme"); const nx=cur==="dark"?"light":"dark"; document.documentElement.setAttribute("data-theme",nx); try{localStorage.setItem("shinshohin-theme",nx);}catch(e){} });
 $("#q").addEventListener("input",e=>{ filter.q=e.target.value; render(); });
-$("#fPhase").addEventListener("change",e=>{ filter.phase=e.target.value; render(); });
+$("#fTabs").addEventListener("click",e=>{ const b=e.target.closest("button[data-tab]"); if(!b) return; filter.tab=b.dataset.tab; render(); });
 $("#fSort").addEventListener("change",e=>{ filter.sort=e.target.value; render(); });
 $("#scrim").addEventListener("click",closeDetail);
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeDetail(); closeSync(); closeFlow(); closeAdmin(); } });
