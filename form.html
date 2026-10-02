@@ -19,10 +19,12 @@
   .toolbar span{ font-size:12px; color:#555; }
 
   h1{ font-size:15pt; margin:0; letter-spacing:.04em; }
-  .head{ display:flex; align-items:flex-end; gap:8mm; border-bottom:1.6pt solid var(--ink); padding-bottom:1.8mm; margin-bottom:2.5mm; }
-  .head .sub{ font-size:8pt; color:#555; margin-top:.8mm; }
-  .head .meta{ margin-left:auto; font-size:13pt; font-weight:800; white-space:nowrap; }
-  .head .meta u{ display:inline-block; min-width:44mm; border-bottom:.6pt solid var(--line); text-decoration:none; text-align:center; font-weight:600; outline:none; }
+  .head{ display:grid; grid-template-columns:1fr auto; align-items:end; column-gap:6mm; border-bottom:1.6pt solid var(--ink); padding-bottom:1.8mm; margin-bottom:2.5mm; }
+  .head .sub{ grid-column:1 / -1; font-size:8pt; color:#555; margin-top:.8mm; white-space:nowrap; }
+  .head .meta{ font-size:13pt; font-weight:800; white-space:nowrap; display:flex; align-items:flex-end; gap:2mm; flex-shrink:0; }
+  /* 次回アクションの記入欄は幅7.5cm。長い文は1行に収まるまで文字を小さくする（下の処理） */
+  .head .meta u{ display:inline-block; width:75mm; min-height:6.5mm; border-bottom:.6pt solid var(--line); text-decoration:none; text-align:left; font-size:11pt; font-weight:600; outline:none; overflow:hidden; white-space:nowrap; padding:0 1mm; box-sizing:border-box; }
+  .head .meta u.wrap{ white-space:normal; line-height:1.15; max-height:2.3em; }
 
   table{ width:100%; border-collapse:collapse; }
   .info td{ border:.6pt solid var(--line2); padding:0; height:8.5mm; }
@@ -77,11 +79,9 @@
 
 <div class="sheet">
   <div class="head">
-    <div>
-      <h1>新商品導入 記入用紙</h1>
-      <div class="sub">1商品につき1枚。記入後はアプリ「新商品導入フロー」に入力してください。</div>
-    </div>
-    <div class="meta">導入予定日 <u id="introDate" contenteditable="true" title="クリックして入力できます"></u></div>
+    <h1>新商品導入 記入用紙</h1>
+    <div class="meta">次回アクション <u id="nextAction" contenteditable="true" title="クリックして入力できます"></u></div>
+    <div class="sub">1商品につき1枚。記入後はアプリ「新商品導入フロー」に入力してください。</div>
   </div>
 
   <table class="info">
@@ -267,7 +267,7 @@
 (function(){
   function pad(n){ return String(n).padStart(2,'0'); }
   var d=new Date(), today=d.getFullYear()+'/'+pad(d.getMonth()+1)+'/'+pad(d.getDate());
-  var intro=document.getElementById('introDate');
+  var nextAct=document.getElementById('nextAction');
   var rq=document.querySelector('[data-k="reqDate"]');
   var q=new URLSearchParams(location.search), id=q.get('id');
   // 白紙：依頼日＝記入日（開いた日）。クリックで書き換え可
@@ -284,7 +284,10 @@
 
   document.title=(p.name||'新商品')+'｜新商品導入 記入用紙';
   document.querySelector('.head .sub').textContent='アプリ「新商品導入フロー」の登録内容（印刷日 '+today+'）';
-  intro.textContent=ymd(p.introDate); intro.removeAttribute('contenteditable'); intro.removeAttribute('title');
+  nextAct.textContent=p.nextAction||''; nextAct.removeAttribute('contenteditable'); nextAct.removeAttribute('title');
+  // 7.5cm の欄に1行で収まるまで文字を小さくする（9pt まで）。それでも長ければ 8.5pt で2行に折り返す
+  for(var fz=10.5; fz>=9 && nextAct.scrollWidth>nextAct.clientWidth; fz-=0.5) nextAct.style.fontSize=fz+'pt';
+  if(nextAct.scrollWidth>nextAct.clientWidth){ nextAct.style.fontSize='8.5pt'; nextAct.classList.add('wrap'); }
   put('name', p.name); put('owner', p.owner); put('note', p.note); put('share', p.share);
   put('client', p.client); put('retail', num(p.retail)); put('unit', num(p.unit)); put('cost', num(p.cost));
   var u=parseFloat(p.unit), c=parseFloat(p.cost);
